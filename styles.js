@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
     input: {
         borderColor: '#ccc',
         borderWidth: 1,
-        borderRadius: 5,
+        borderRadius: 10,
         padding: 15,
         marginVertical: 20,
         marginHorizontal: 10,
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
         shadowColor: '#000',
         shadowOpacity: 0.25,
         shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 5,
+        shadowRadius: 10,
         elevation: 5,
         alignItems: 'center',
     },
@@ -66,29 +66,87 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         margin: 10,
-      },
-      saveWorkoutButtonText: {
+    },
+    saveWorkoutButtonText: {
         color: '#fff',
         fontSize: 18,
-      },
-      container: {
+    },
+    container: {
         flex: 1,
         backgroundColor: '#fff',
-      },
-      workoutItem: {
+    },
+    workoutItem: {
         padding: 15,
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
-      },
-      cardTitle: {
+    },
+    cardTitle: {
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 10,
-      },
-      cardItem: {
+    },
+    cardItem: {
         fontSize: 16,
         marginBottom: 5,
-      },
+    },
+    cardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    deleteButtonContainer: {
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    deleteButtonCard: {
+        backgroundColor: '#ffcccc',
+        borderRadius: 10,
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        alignItems: 'center',
+    },
+    deleteButton: {
+        fontSize: 16,
+        color: 'red',
+    },
+    autocompleteInputContainer: {
+        borderWidth: 0,
+    },
+    dropdownItem: {
+        padding: 20, // Add more padding
+        fontSize: 28,
+    },
+    dropdownText: {
+        fontSize: 28, // Increase the font size
+    },
+    dropdown: {
+        maxHeight: 200,
+        borderWidth: 1,
+        borderColor: 'grey',
+    },
+    startWorkoutButton: {
+        backgroundColor: '#1a73e8',
+        padding: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginBottom: 10,
+        marginHorizontal: 10,
+    },
+    startWorkoutButtonText: {
+        color: '#ffffff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    timerText: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    startWorkoutButtonDisabled: {
+        backgroundColor: '#A0A0A0',
+    },
+
 });
 
 export default styles;

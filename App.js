@@ -1,49 +1,118 @@
-import React, { useState, useEffect } from 'react';
-import { Button, SafeAreaView, TextInput, View, Text, FlatList, TouchableOpacity } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Button, SafeAreaView, TextInput, View, Text, FlatList, TouchableOpacity, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView } from 'react-native';
+import { NavigationContainer, useFocusEffect } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
+
 import styles from './styles';
 
 const HomeScreen = ({ navigation }) => {
-  const [exercise, setExercise] = useState('');
   const [workout, setWorkout] = useState([]);
   const [numExercises, setNumExercises] = useState(0);
 
+  const [exerciseInput, setExerciseInput] = useState('');
+  const [filteredExercises, setFilteredExercises] = useState([]);
+
+  const [timerRunning, setTimerRunning] = useState(false);
+  const [workoutStartTime, setWorkoutStartTime] = useState(null);
+  const [workoutDuration, setWorkoutDuration] = useState(null);
+
+  const exerciseList = [
+    { name: 'Squat' },
+    { name: 'Bench Press' },
+    { name: 'Deadlift' },
+    { name: 'Overhead Press' },
+    { name: 'Barbell Row' },
+    { name: 'Leg Press' }, // New exercise
+    { name: 'Bicep Curl' }, // New exercise
+  ];
+
+  const filterExercises = (text) => {
+    if (text === '') {
+      setFilteredExercises([]);
+    } else {
+      const filtered = exerciseList.filter((item) => item.name.toLowerCase().startsWith(text.toLowerCase()));
+      setFilteredExercises(filtered);
+    }
+  };
+
+  const handleInputChange = (text) => {
+    setExerciseInput(text);
+    filterExercises(text);
+  };
+
+  const startWorkout = () => {
+    if (!timerRunning) {
+      setWorkoutStartTime(new Date());
+      setTimerRunning(true);
+    }
+  };
+
   const addExercise = () => {
     const newExercise = {
-      id: this.numExercises,
-      name: exercise,
+      id: numExercises,
+      name: exerciseInput,
       sets: null,
       reps: null,
       weight: null,
     };
 
+    if (exerciseInput.trim() === '') {
+      alert('Please enter a valid exercise name.');
+      return;
+    }
+
     setWorkout((prevWorkout) => [...prevWorkout, newExercise]);
-    setExercise('');
-    setNumExercises(this.numExercises + 1);
+    setExerciseInput('');
+    setNumExercises(numExercises + 1);
+  };
+
+  const addExerciseWithInput = (text) => {
+    const newExercise = {
+      id: numExercises,
+      name: text,
+      sets: null,
+      reps: null,
+      weight: null,
+    };
+
+    if (text.trim() === '') {
+      alert('Please enter a valid exercise name.');
+      return;
+    }
+
+    setWorkout((prevWorkout) => [...prevWorkout, newExercise]);
+    setExerciseInput('');
+    setNumExercises(numExercises + 1);
   };
 
   const clearExercises = () => {
     setWorkout([]);
   };
 
-  const saveExerciseData = (exerciseId, sets, reps, weight) => {
-    setWorkout((prevWorkout) =>
-      prevWorkout.map((exercise) =>
-        exercise.id === exerciseId ? { ...exercise, sets, reps, weight } : exercise
-      )
-    );
-    navigation.navigate('Home');
-  };
-
   const saveWorkout = async () => {
+    if (workoutStartTime) {
+      const endTime = new Date();
+      const duration = Math.floor((endTime - workoutStartTime) / 1000); // Duration in seconds
+      setWorkoutDuration(duration);
+      setWorkoutStartTime(null);
+      setTimerRunning(false);
+    }
+
     if (workout.length === 0) {
       alert('No exercises to save. Add exercises before saving the workout.');
       return;
     }
+
+
+    const workoutData = {
+      id: `workout-${Date.now()}`,
+      date: new Date().toLocaleString(),
+      exercises: workout,
+      duration: workoutDuration,
+    };
 
     try {
       // Create a unique workout identifier based on the current date and time
@@ -58,13 +127,10 @@ const HomeScreen = ({ navigation }) => {
       }
 
       // Save the current workout with the unique identifier
-      workouts[workoutId] = workout;
+      workouts[workoutId] = workoutData;
 
       // Save updated workouts to AsyncStorage
       await AsyncStorage.setItem('workouts', JSON.stringify(workouts));
-
-      // Print the entire set of saved workouts
-      console.log('All saved workouts:', workouts);
 
       // Clear the current workout
       setWorkout([]);
@@ -76,79 +142,131 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-
-
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <TextInput
-        placeholder="Type an exercise"
-        onChangeText={setExercise}
-        value={exercise}
-        style={styles.input}
-      />
-      <CardButton style={styles.cardButton} title="Add exercise" onPress={addExercise} />
-      <CardButton title="Clear exercises" onPress={clearExercises} />
-      <FlatList
-        data={workout}
-        renderItem={({ item }) => (
-          <Card
-            exercise={item}
-            onPress={() =>
-              navigation.navigate('Exercise', {
-                exercise: item,
-                saveExerciseData: saveExerciseData, // Pass the callback function
-              })
-            }
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <SafeAreaView style={styles.safeArea}>
+          <TouchableOpacity
+            style={[
+              styles.startWorkoutButton,
+              timerRunning ? styles.startWorkoutButtonDisabled : null,
+            ]}
+            onPress={startWorkout}
+            disabled={timerRunning}
+          >
+            <Text style={styles.startWorkoutButtonText}>Start Workout</Text>
+          </TouchableOpacity>
+          <TextInput
+            style={styles.input}
+            placeholder="Type an exercise"
+            onChangeText={handleInputChange}
+            value={exerciseInput}
           />
-        )}
-        keyExtractor={(item) => item.id}
-      />
-      <TouchableOpacity style={styles.saveWorkoutButton} onPress={saveWorkout}>
-        <Text style={styles.saveWorkoutButtonText}>Save Workout</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+          {filteredExercises.length > 0 && (
+            <FlatList
+              data={filteredExercises}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  onPress={() => {
+                    Keyboard.dismiss();
+                    setExerciseInput(item.name);
+                    setFilteredExercises([]);
+                    addExerciseWithInput(item.name);
+                  }}
+                  style={styles.dropdownItem}
+                >
+                  <Text style={styles.dropdownText}>{item.name}</Text>
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item) => item.name}
+              style={styles.dropdown}
+            />
+          )}
+          <CardButton style={styles.cardButton} title="Add exercise" onPress={addExercise} />
+          <CardButton title="Clear exercises" onPress={clearExercises} />
+          <FlatList
+            data={workout}
+            renderItem={({ item }) => (
+              <Card
+                exercise={item}
+                onPress={() =>
+                  navigation.navigate('Exercise', {
+                    exercise: item,
+                    workout: workout,
+                    setWorkout: setWorkout,
+                    // saveExerciseData: saveExerciseData, // Pass the callback function
+                  })
+                }
+              />
+            )}
+            keyExtractor={(item) => item.id}
+          />
+          <TouchableOpacity style={styles.saveWorkoutButton} onPress={saveWorkout}>
+            <Text style={styles.saveWorkoutButtonText}>Save Workout</Text>
+          </TouchableOpacity>
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 
 const ExerciseScreen = ({ route, navigation }) => {
-  const { exercise } = route.params;
-  const [sets, setSets] = useState('');
-  const [reps, setReps] = useState('');
-  const [weight, setWeight] = useState('');
+  const { workout, setWorkout, exercise } = route.params;
+  const [sets, setSets] = useState(() => exercise.sets || []);
+  const [reps, setReps] = useState(() => exercise.reps || '');
+  const [weight, setWeight] = useState(() => exercise.weight || '');
+
+  const addSet = () => {
+    if (reps.trim() !== '') {
+      setSets([...sets, [parseInt(reps), parseInt(weight)]]);
+    }
+  };
 
   const saveExerciseData = () => {
-    const updatedSets = parseInt(sets, 10);
-    const updatedReps = parseInt(reps, 10);
-    const updatedWeight = parseFloat(weight);
+    const updatedWorkout = workout.map((item) => {
+      if (item.id === exercise.id) {
+        return {
+          ...item,
+          sets: sets,
+        };
+      }
+      return item;
+    });
 
-    route.params.saveExerciseData(exercise.id, updatedSets, updatedReps, updatedWeight);
+    setWorkout(updatedWorkout);
     navigation.goBack();
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <Text style={styles.card}>{exercise.name}</Text>
-      <TextInput
-        placeholder="Sets"
-        onChangeText={setSets}
-        value={sets}
-        keyboardType="number-pad"
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Reps"
-        onChangeText={setReps}
-        value={reps}
-        keyboardType="number-pad"
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Weight (lbs)"
-        onChangeText={setWeight}
-        value={weight}
-        keyboardType="decimal-pad"
-        style={styles.input}
-      />
+      <View style={styles.addSetContainer}>
+        <TextInput
+          placeholder="Add Reps"
+          onChangeText={setReps}
+          value={reps}
+          keyboardType="number-pad"
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="Add Weight"
+          onChangeText={setWeight}
+          value={weight}
+          keyboardType="number-pad"
+          style={styles.input}
+        />
+        <Button title="Add Set" onPress={addSet} />
+      </View>
+      <View>
+        {sets.map((setReps, index) => (
+          <Text key={index}>
+            Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs
+          </Text>
+        ))}
+      </View>
       <Button title="Save" onPress={saveExerciseData} />
     </SafeAreaView>
   );
@@ -156,6 +274,35 @@ const ExerciseScreen = ({ route, navigation }) => {
 
 const WorkoutLogScreen = () => {
   const [savedWorkouts, setSavedWorkouts] = useState([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadWorkouts = async () => {
+        const workouts = await AsyncStorage.getItem('workouts');
+        if (workouts) {
+          setSavedWorkouts(JSON.parse(workouts));
+        }
+      };
+
+      loadWorkouts();
+    }, [])
+  );
+
+  const deleteWorkout = async (workoutId) => {
+    try {
+      const allWorkouts = await AsyncStorage.getItem('workouts');
+      let workouts = JSON.parse(allWorkouts);
+
+      if (workouts) {
+        delete workouts[workoutId];
+        await AsyncStorage.setItem('workouts', JSON.stringify(workouts));
+        setSavedWorkouts(workouts);
+      }
+    } catch (error) {
+      console.error('Error deleting workout:', error);
+    }
+  };
+
 
   useEffect(() => {
     const fetchWorkouts = async () => {
@@ -177,17 +324,40 @@ const WorkoutLogScreen = () => {
       <FlatList
         data={Object.entries(savedWorkouts)}
         renderItem={({ item }) => {
-          const [workoutId, workout] = item;
-          const date = workoutId.split('_')[1];
+          const [workoutId, workoutData] = item;
+          const { id, date, exercises, duration } = workoutData;
+
+          if (!exercises || !date || !id) {
+            return null;
+          }
+
+          const formattedDate = String(date);
+
+          const durationInMinutes = (duration / (1000 * 60)).toFixed(0);
 
           return (
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>Workout - {date}</Text>
-              {workout.map((exercise, index) => (
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardTitle}>Workout - {formattedDate}</Text>
+              </View>
+              <Text style={styles.cardItem}>Duration: {durationInMinutes} minutes</Text>
+              {exercises.map((exercise, index) => (
                 <Text style={styles.cardItem} key={index}>
-                  {exercise.name} ({exercise.sets} sets x {exercise.reps} reps x {exercise.weight} lbs)
+                  {exercise.name} {'\n'}
+                  {exercise.sets !== null && 
+                    Array.isArray(exercise.sets) &&
+                    exercise.sets.map((setReps, index) => (
+                    <Text key={index}>
+                       {'\t'}Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs {'\n'}
+                    </Text>
+                  ))}
                 </Text>
               ))}
+              <View style={styles.deleteButtonContainer}>
+                <TouchableOpacity style={styles.deleteButtonCard} onPress={() => deleteWorkout(workoutId)}>
+                  <Text style={styles.deleteButton}>Delete</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           );
         }}
@@ -195,6 +365,9 @@ const WorkoutLogScreen = () => {
       />
     </SafeAreaView>
   );
+
+
+
 
 };
 
@@ -222,32 +395,32 @@ function App() {
   return (
     <NavigationContainer>
       <Tab.Navigator>
-        <Tab.Screen name="Home" component={HomeStackNavigator} />
-        <Tab.Screen name="Workout Log" component={WorkoutLogScreen} />
+        <Tab.Screen name="Home Screen" component={HomeStackNavigator} options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="md-barbell" color={color} size={size} />
+          ),
+        }} />
+        <Tab.Screen name="Workout Log" component={WorkoutLogScreen} options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="ios-list" color={color} size={size} />
+          ),
+        }} />
       </Tab.Navigator>
     </NavigationContainer>
   );
 }
 
-// const App = () => {
-//   return (
-//     <NavigationContainer>
-//       <Stack.Navigator>
-//         <Stack.Screen name="Home" component={HomeScreen} />
-//         <Stack.Screen name="Exercise" component={ExerciseScreen} />
-//         <Stack.Screen name="Workout Log" component={WorkoutLogScreen} />
-//       </Stack.Navigator>
-//     </NavigationContainer>
-//   );
-// };
-
 const Card = ({ exercise, onPress }) => {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <Text style={styles.cardText}>{exercise.name}</Text>
-      {exercise.sets !== null && <Text>Sets: {exercise.sets}</Text>}
-      {exercise.reps !== null && <Text>Reps: {exercise.reps}</Text>}
-      {exercise.weight !== null && <Text>Weight: {exercise.weight} lbs</Text>}
+      <View>
+        {exercise.sets !== null && exercise.sets.map((setReps, index) => (
+          <Text key={index}>
+            Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs
+          </Text>
+        ))}
+      </View>
     </TouchableOpacity>
   );
 };
