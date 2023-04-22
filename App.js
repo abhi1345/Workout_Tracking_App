@@ -5,7 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-
+import { formatTimeSeconds } from './utilities';
 import styles from './styles';
 
 const HomeScreen = ({ navigation }) => {
@@ -17,12 +17,14 @@ const HomeScreen = ({ navigation }) => {
 
   const [timerRunning, setTimerRunning] = useState(false);
   const [workoutStartTime, setWorkoutStartTime] = useState(null);
-  const [workoutDuration, setWorkoutDuration] = useState(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [timerVisible, setTimerVisible] = useState(false);
 
   const exerciseList = [
-    { name: 'Squat' },
-    { name: 'Bench Press' },
-    { name: 'Deadlift' },
+    { name: 'Back Squat' },
+    { name: 'Barbell Bench Press' },
+    { name: 'Conventional Deadlift' },
+    { name: 'Sumo Deadlift' },
     { name: 'Overhead Press' },
     { name: 'Barbell Row' },
     { name: 'Leg Press' }, // New exercise
@@ -45,8 +47,10 @@ const HomeScreen = ({ navigation }) => {
 
   const startWorkout = () => {
     if (!timerRunning) {
+      setElapsedTime(0);
       setWorkoutStartTime(new Date());
       setTimerRunning(true);
+      setTimerVisible(true);
     }
   };
 
@@ -93,12 +97,11 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const saveWorkout = async () => {
+    let duration = 0;
     if (workoutStartTime) {
       const endTime = new Date();
-      const duration = Math.floor((endTime - workoutStartTime) / 1000); // Duration in seconds
-      setWorkoutDuration(duration);
-      setWorkoutStartTime(null);
-      setTimerRunning(false);
+      duration = Math.floor((endTime - workoutStartTime) / 1000); // Duration in seconds
+      console.log("duration is", duration);
     }
 
     if (workout.length === 0) {
@@ -111,8 +114,9 @@ const HomeScreen = ({ navigation }) => {
       id: `workout-${Date.now()}`,
       date: new Date().toLocaleString(),
       exercises: workout,
-      duration: workoutDuration,
+      workoutDuration: duration,
     };
+    console.log("Creating workout data with data", workoutData);
 
     try {
       // Create a unique workout identifier based on the current date and time
@@ -132,15 +136,36 @@ const HomeScreen = ({ navigation }) => {
       // Save updated workouts to AsyncStorage
       await AsyncStorage.setItem('workouts', JSON.stringify(workouts));
 
+      console.log("Saved workout data with data", workoutData);
+
       // Clear the current workout
       setWorkout([]);
 
       alert('Workout saved successfully.');
+
     } catch (error) {
       console.error('Error saving workout:', error);
       alert('Error saving workout.');
     }
+    setWorkoutStartTime(null);
+    setTimerRunning(false);
+    setTimerVisible(false);
+    console.log("Cleared workout timer");
   };
+
+  useEffect(() => {
+    let intervalId;
+
+    if (timerVisible) {
+      intervalId = setInterval(() => {
+        setElapsedTime(Math.floor((new Date() - workoutStartTime) / 1000));
+      }, 1000);
+    }
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [timerVisible, workoutStartTime]);
 
   return (
     <KeyboardAvoidingView
@@ -157,11 +182,18 @@ const HomeScreen = ({ navigation }) => {
             onPress={startWorkout}
             disabled={timerRunning}
           >
-            <Text style={styles.startWorkoutButtonText}>Start Workout</Text>
+            <Text style={styles.startWorkoutButtonText}>Start Workout Timer</Text>
           </TouchableOpacity>
+          <View>
+            {timerVisible && (
+              <View style={styles.timerText}>
+                <Text>{formatTimeSeconds(elapsedTime)}</Text>
+              </View>
+            )}
+          </View>
           <TextInput
             style={styles.input}
-            placeholder="Type an exercise"
+            placeholder="Type an exercise, then click Add exercise"
             onChangeText={handleInputChange}
             value={exerciseInput}
           />
@@ -325,32 +357,36 @@ const WorkoutLogScreen = () => {
         data={Object.entries(savedWorkouts)}
         renderItem={({ item }) => {
           const [workoutId, workoutData] = item;
-          const { id, date, exercises, duration } = workoutData;
+          const { id, date, exercises, workoutDuration } = workoutData;
+          console.log(workoutData);
+          console.log("CHECK DUR", workoutDuration, exercises);
 
           if (!exercises || !date || !id) {
             return null;
           }
 
+          if (!workoutDuration) {
+            console.log("cant find duration");
+          }
+
           const formattedDate = String(date);
-
-          const durationInMinutes = (duration / (1000 * 60)).toFixed(0);
-
+          
           return (
             <View style={styles.card}>
               <View style={styles.cardHeader}>
                 <Text style={styles.cardTitle}>Workout - {formattedDate}</Text>
               </View>
-              <Text style={styles.cardItem}>Duration: {durationInMinutes} minutes</Text>
+              <Text style={styles.cardItem}>Duration: {formatTimeSeconds(workoutDuration)}</Text>
               {exercises.map((exercise, index) => (
                 <Text style={styles.cardItem} key={index}>
                   {exercise.name} {'\n'}
-                  {exercise.sets !== null && 
+                  {exercise.sets !== null &&
                     Array.isArray(exercise.sets) &&
                     exercise.sets.map((setReps, index) => (
-                    <Text key={index}>
-                       {'\t'}Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs {'\n'}
-                    </Text>
-                  ))}
+                      <Text key={index}>
+                        {'\t'}Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs {'\n'}
+                      </Text>
+                    ))}
                 </Text>
               ))}
               <View style={styles.deleteButtonContainer}>
@@ -395,7 +431,7 @@ function App() {
   return (
     <NavigationContainer>
       <Tab.Navigator>
-        <Tab.Screen name="Home Screen" component={HomeStackNavigator} options={{
+        <Tab.Screen name="Your Workout" component={HomeStackNavigator} options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="md-barbell" color={color} size={size} />
           ),
@@ -430,17 +466,6 @@ const CardButton = ({ title, onPress }) => {
     <TouchableOpacity onPress={onPress} style={styles.cardButton}>
       <Text style={styles.cardButtonText}>{title}</Text>
     </TouchableOpacity>
-  );
-};
-
-const WorkoutLogItem = ({ exerciseId, sets, reps, weight }) => {
-  return (
-    <View style={styles.workoutLogItem}>
-      <Text style={styles.workoutLogText}>Exercise ID: {exerciseId}</Text>
-      <Text style={styles.workoutLogText}>Sets: {sets}</Text>
-      <Text style={styles.workoutLogText}>Reps: {reps}</Text>
-      <Text style={styles.workoutLogText}>Weight: {weight} lbs</Text>
-    </View>
   );
 };
 
