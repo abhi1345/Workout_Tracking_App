@@ -6,6 +6,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { formatTimeSeconds } from './utilities';
+import Swipeable from 'react-native-gesture-handler/Swipeable';
+
+
 import styles from './styles';
 
 const HomeScreen = ({ navigation }) => {
@@ -27,8 +30,8 @@ const HomeScreen = ({ navigation }) => {
     { name: 'Sumo Deadlift' },
     { name: 'Overhead Press' },
     { name: 'Barbell Row' },
-    { name: 'Leg Press' }, // New exercise
-    { name: 'Bicep Curl' }, // New exercise
+    { name: 'Leg Press' },
+    { name: 'Bicep Curl' },
   ];
 
   const filterExercises = (text) => {
@@ -71,6 +74,13 @@ const HomeScreen = ({ navigation }) => {
     setWorkout((prevWorkout) => [...prevWorkout, newExercise]);
     setExerciseInput('');
     setNumExercises(numExercises + 1);
+  };
+
+  const removeExercise = (exerciseId) => {
+    console.log("removing exercise", exerciseId, 
+    workout.find((exercise) => exercise.id !== exerciseId));
+    const updatedWorkout = workout.filter((exercise) => exercise.id !== exerciseId);
+    setWorkout(updatedWorkout);
   };
 
   const addExerciseWithInput = (text) => {
@@ -203,10 +213,9 @@ const HomeScreen = ({ navigation }) => {
               renderItem={({ item }) => (
                 <TouchableOpacity
                   onPress={() => {
-                    Keyboard.dismiss();
-                    setExerciseInput(item.name);
                     setFilteredExercises([]);
                     addExerciseWithInput(item.name);
+                    Keyboard.dismiss();
                   }}
                   style={styles.dropdownItem}
                 >
@@ -232,12 +241,21 @@ const HomeScreen = ({ navigation }) => {
                     // saveExerciseData: saveExerciseData, // Pass the callback function
                   })
                 }
+                onDelete={() => removeExercise(item.id)}
               />
             )}
             keyExtractor={(item) => item.id}
           />
-          <TouchableOpacity style={styles.saveWorkoutButton} onPress={saveWorkout}>
-            <Text style={styles.saveWorkoutButtonText}>Save Workout</Text>
+          <TouchableOpacity
+            style={[
+              styles.saveWorkoutButton,
+              !timerRunning ? styles.saveWorkoutButtonDisabled : null,
+            ]}
+            onPress={!timerRunning ? null : saveWorkout}
+          >
+            <Text
+              style={styles.saveWorkoutButtonText}
+            >Save Workout</Text>
           </TouchableOpacity>
         </SafeAreaView>
       </TouchableWithoutFeedback>
@@ -253,9 +271,25 @@ const ExerciseScreen = ({ route, navigation }) => {
 
   const addSet = () => {
     if (reps.trim() !== '') {
-      setSets([...sets, [parseInt(reps), parseInt(weight)]]);
+      setSets(prevSets => {
+        const newSets = [...prevSets, [parseInt(reps), parseInt(weight)]];
+
+        const updatedWorkout = workout.map((item) => {
+          if (item.id === exercise.id) {
+            return {
+              ...item,
+              sets: newSets,
+            };
+          }
+          return item;
+        });
+
+        setWorkout(updatedWorkout);
+        return newSets;
+      });
     }
   };
+
 
   const saveExerciseData = () => {
     const updatedWorkout = workout.map((item) => {
@@ -326,6 +360,7 @@ const WorkoutLogScreen = () => {
       let workouts = JSON.parse(allWorkouts);
 
       if (workouts) {
+        console.log("Deleting workout: ", workouts[workoutId]);
         delete workouts[workoutId];
         await AsyncStorage.setItem('workouts', JSON.stringify(workouts));
         setSavedWorkouts(workouts);
@@ -358,8 +393,6 @@ const WorkoutLogScreen = () => {
         renderItem={({ item }) => {
           const [workoutId, workoutData] = item;
           const { id, date, exercises, workoutDuration } = workoutData;
-          console.log(workoutData);
-          console.log("CHECK DUR", workoutDuration, exercises);
 
           if (!exercises || !date || !id) {
             return null;
@@ -370,7 +403,7 @@ const WorkoutLogScreen = () => {
           }
 
           const formattedDate = String(date);
-          
+
           return (
             <View style={styles.card}>
               <View style={styles.cardHeader}>
@@ -446,18 +479,37 @@ function App() {
   );
 }
 
-const Card = ({ exercise, onPress }) => {
+const Card = ({ exercise, onPress, onDelete }) => {
+
+  const RightSwipeActions = () => {
+    return (
+      <CardDeleteButton title="Delete" style={styles.cardDeleteButton} onPress={onDelete} />
+    );
+  };
+
+  const swipeFromRightOpen = () => {
+    console.log('Swiped from right');
+  };
+
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
-      <Text style={styles.cardText}>{exercise.name}</Text>
-      <View>
-        {exercise.sets !== null && exercise.sets.map((setReps, index) => (
-          <Text key={index}>
-            Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs
-          </Text>
-        ))}
-      </View>
-    </TouchableOpacity>
+    <Swipeable
+      renderLeftActions={null}
+      renderRightActions={RightSwipeActions}
+      onSwipeableRightOpen={swipeFromRightOpen}
+      disableLeftSwipe={true}
+      leftThreshold={1}
+    >
+      <TouchableOpacity style={styles.card} onPress={onPress}>
+        <Text style={styles.cardText}>{exercise.name}</Text>
+        <View>
+          {exercise.sets !== null && exercise.sets.map((setReps, index) => (
+            <Text key={index}>
+              Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs
+            </Text>
+          ))}
+        </View>
+      </TouchableOpacity>
+    </Swipeable>
   );
 };
 
@@ -465,6 +517,14 @@ const CardButton = ({ title, onPress }) => {
   return (
     <TouchableOpacity onPress={onPress} style={styles.cardButton}>
       <Text style={styles.cardButtonText}>{title}</Text>
+    </TouchableOpacity>
+  );
+};
+
+const CardDeleteButton = ({ title, onPress }) => {
+  return (
+    <TouchableOpacity onPress={onPress} style={styles.cardDeleteButton}>
+      <Text style={styles.swipeActionText}>{title}</Text>
     </TouchableOpacity>
   );
 };
