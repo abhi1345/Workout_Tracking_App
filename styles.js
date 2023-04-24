@@ -40,6 +40,26 @@ const styles = StyleSheet.create({
         elevation: 5,
         alignItems: 'center',
     },
+    cardDeleteButton: {
+        backgroundColor: '#FF0000',
+        borderRadius: 10,
+        padding: 20,
+        marginVertical: 10,
+        marginHorizontal: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.25,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 10,
+        elevation: 10,
+        justifyContent: "center",
+    },
+    swipeActionText: {
+        paddingTop: 10,
+        paddingBottom: 10,
+        color: 'white',
+        textAlignVertical: "center",
+        textAlign: "center",
+    },
     cardButtonText: {
         fontSize: 18,
     },
@@ -146,6 +166,27 @@ const styles = StyleSheet.create({
     },
     startWorkoutButtonDisabled: {
         backgroundColor: '#A0A0A0',
+    },
+    saveWorkoutButtonDisabled: {
+        backgroundColor: 'gray',
+        opacity: 0.5,
+        // Add any other desired styles for the disabled state
+    },
+    leftSwipeActions: {
+        backgroundColor: 'blue',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        width: 100,
+    },
+    rightSwipeActions: {
+        backgroundColor: 'red',
+        justifyContent: 'center',
+        alignItems: 'flex-end',
+        width: 110,
+        borderRadius: 10,
+        padding: 30, // increased padding
+        marginVertical: 10, // increased margin
+        marginHorizontal: 10,
     },
 
 });
