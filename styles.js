@@ -15,14 +15,17 @@ const styles = StyleSheet.create({
     },
     cardText: {
         fontSize: 18,
+        fontFamily: "Nunito-Black",
     },
     input: {
         borderColor: '#ccc',
         borderWidth: 1,
         borderRadius: 10,
-        padding: 15,
+        padding: 20,
         marginVertical: 20,
         marginHorizontal: 10,
+        flex: 1,
+        fontSize:12,
     },
     safeArea: {
         padding: 20, // added padding
@@ -31,6 +34,19 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderRadius: 10,
         padding: 20,
+        marginVertical: 10,
+        marginHorizontal: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.25,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 10,
+        elevation: 5,
+        alignItems: 'center',
+    },
+    addExerciseCardButton: {
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 10,
         marginVertical: 10,
         marginHorizontal: 10,
         shadowColor: '#000',
@@ -62,6 +78,7 @@ const styles = StyleSheet.create({
     },
     cardButtonText: {
         fontSize: 18,
+        fontFamily: "Nunito-Black",
     },
     workoutLogItem: {
         backgroundColor: '#fff',
@@ -94,6 +111,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
     },
     workoutItem: {
         padding: 15,
