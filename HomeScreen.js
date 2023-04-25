@@ -226,7 +226,6 @@ export const HomeScreen = ({ navigation }) => {
                             style={[styles.dropdown]}
                         />
                     )}
-                    <CardButton title="Clear exercises" onPress={clearExercises} />
                     <FlatList
                         data={workout}
                         renderItem={({ item }) => (
@@ -245,6 +244,7 @@ export const HomeScreen = ({ navigation }) => {
                         )}
                         keyExtractor={(item) => item.id}
                     />
+                    <CardButton title="Clear exercises" onPress={clearExercises} />
                     <TouchableOpacity
                         style={[
                             styles.saveWorkoutButton,

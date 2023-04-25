@@ -25,7 +25,17 @@ const styles = StyleSheet.create({
         marginVertical: 20,
         marginHorizontal: 10,
         flex: 1,
-        fontSize:12,
+        fontSize: 14,
+    },
+    setRepInput: {
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 10,
+        padding: 20,
+        marginVertical: 20,
+        marginHorizontal: 10,
+        flex: 1,
+        fontSize: 11,
     },
     safeArea: {
         padding: 20, // added padding
@@ -210,6 +220,12 @@ const styles = StyleSheet.create({
         marginVertical: 10, // increased margin
         marginHorizontal: 10,
     },
+    repSetText : {
+        padding: 5,
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+        flex: 1,
+    }
 
 });
 
