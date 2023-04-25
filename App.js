@@ -271,11 +271,11 @@ const ExerciseScreen = ({ route, navigation }) => {
 
   const addSet = () => {
     const numericTextReps = reps.replace(/[^0-9]/g, '');
-    const numericTextWeight = weight.replace(/[^0-9]/g, '');
+    const numericTextWeight = weight.replace(/[^0-9.]/g, '');
 
     if (numericTextReps.trim() !== '' && numericTextWeight.trim() !== '') {
       setSets(prevSets => {
-        const newSets = [...prevSets, [parseInt(reps), parseInt(weight)]];
+        const newSets = [...prevSets, [parseInt(reps), parseFloat(weight)]];
 
         const updatedWorkout = workout.map((item) => {
           if (item.id === exercise.id) {
@@ -326,7 +326,7 @@ const ExerciseScreen = ({ route, navigation }) => {
           placeholder="Add Weight"
           onChangeText={setWeight}
           value={weight}
-          keyboardType="number-pad"
+          keyboardType="decimal-pad"
           style={styles.input}
         />
         <Button title="Add Set" onPress={addSet} />
