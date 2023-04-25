@@ -177,9 +177,7 @@ export const HomeScreen = ({ navigation }) => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.container}
         >
-            <View
-                style={styles.safeArea}
-                keyboardShouldPersistTaps='handled'
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}
             >
                 <SafeAreaView style={styles.safeArea}>
                     <TouchableOpacity
@@ -259,7 +257,7 @@ export const HomeScreen = ({ navigation }) => {
                         >Save Workout</Text>
                     </TouchableOpacity>
                 </SafeAreaView>
-            </View>
+            </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
     );
 };
