@@ -270,7 +270,10 @@ const ExerciseScreen = ({ route, navigation }) => {
   const [weight, setWeight] = useState(() => exercise.weight || '');
 
   const addSet = () => {
-    if (reps.trim() !== '') {
+    const numericTextReps = reps.replace(/[^0-9]/g, '');
+    const numericTextWeight = weight.replace(/[^0-9]/g, '');
+
+    if (numericTextReps.trim() !== '' && numericTextWeight.trim() !== '') {
       setSets(prevSets => {
         const newSets = [...prevSets, [parseInt(reps), parseInt(weight)]];
 
@@ -287,6 +290,8 @@ const ExerciseScreen = ({ route, navigation }) => {
         setWorkout(updatedWorkout);
         return newSets;
       });
+    } else {
+      alert('Please enter numbers only.');
     }
   };
 
