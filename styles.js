@@ -225,8 +225,23 @@ const styles = StyleSheet.create({
         alignItems: 'flex-end',
         justifyContent: 'center',
         flex: 1,
-    }
-
+    },
+    historyTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginTop: 10,
+      },
+      historyItem: {
+        backgroundColor: '#f0f0f0',
+        borderRadius: 5,
+        padding: 10,
+        marginBottom: 10,
+      },
+      historyDate: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 5,
+      },
 });
 
 export default styles;

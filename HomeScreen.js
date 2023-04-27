@@ -226,24 +226,27 @@ export const HomeScreen = ({ navigation }) => {
                             style={[styles.dropdown]}
                         />
                     )}
-                    <FlatList
-                        data={workout}
-                        renderItem={({ item }) => (
-                            <Card
-                                exercise={item}
-                                onPress={() =>
-                                    navigation.navigate('Exercise', {
-                                        exercise: item,
-                                        workout: workout,
-                                        setWorkout: setWorkout,
-                                        // saveExerciseData: saveExerciseData, // Pass the callback function
-                                    })
-                                }
-                                onDelete={() => removeExercise(item.id)}
-                            />
-                        )}
-                        keyExtractor={(item) => item.id}
-                    />
+
+                    <View style={{ maxHeight: '50%' }}>
+                        <FlatList
+                            data={workout}
+                            renderItem={({ item }) => (
+                                <Card
+                                    exercise={item}
+                                    onPress={() =>
+                                        navigation.navigate('Exercise', {
+                                            exercise: item,
+                                            workout: workout,
+                                            setWorkout: setWorkout,
+                                            // saveExerciseData: saveExerciseData, // Pass the callback function
+                                        })
+                                    }
+                                    onDelete={() => removeExercise(item.id)}
+                                />
+                            )}
+                            keyExtractor={(item) => item.id}
+                        />
+                    </View>
                     <CardButton title="Clear exercises" onPress={clearExercises} />
                     <TouchableOpacity
                         style={[
@@ -283,7 +286,10 @@ const Card = ({ exercise, onPress, onDelete }) => {
             leftThreshold={1}
         >
             <TouchableOpacity style={styles.card} onPress={onPress}>
-                <Text style={styles.cardText}>{exercise.name}</Text>
+                <Text style={{ flexDirection: 'row' }}>
+                    <Text style={styles.cardText}>{exercise.name} </Text>
+                    <Text style={{ color: 'gray' }}> (click to add sets)</Text>
+                </Text>
                 <View>
                     {exercise.sets !== null && exercise.sets.map((setReps, index) => (
                         <Text key={index}>
