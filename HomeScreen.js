@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Platform, SafeAreaView, TextInput, ScrollView, View, Text, FlatList, TouchableOpacity, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { formatTimeSeconds } from './utilities';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
+import * as SQLite from 'expo-sqlite';
 
 import styles from './styles';
+
+const db = SQLite.openDatabase('workouts.db');
 
 export const HomeScreen = ({ navigation }) => {
     const [workout, setWorkout] = useState([]);
@@ -118,30 +120,30 @@ export const HomeScreen = ({ navigation }) => {
         const workoutData = {
             id: `workout-${Date.now()}`,
             date: new Date().toLocaleString(),
-            exercises: workout,
+            exercises: JSON.stringify(workout),
             workoutDuration: duration,
         };
         console.log("Creating workout data with data", workoutData);
 
         try {
-            // Create a unique workout identifier based on the current date and time
-            const workoutId = 'workout_' + new Date().toISOString();
-
-            // Get existing workouts
-            const existingWorkouts = await AsyncStorage.getItem('workouts');
-            let workouts = JSON.parse(existingWorkouts);
-
-            if (!workouts) {
-                workouts = {};
-            }
-
-            // Save the current workout with the unique identifier
-            workouts[workoutId] = workoutData;
-
-            // Save updated workouts to AsyncStorage
-            await AsyncStorage.setItem('workouts', JSON.stringify(workouts));
-
-            console.log("Saved workout data with data", workoutData);
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'CREATE TABLE IF NOT EXISTS workouts (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, exercises TEXT, workoutDuration INT);',
+                    [],
+                    () => console.log('Table created successfully')
+                );
+                tx.executeSql(
+                    'INSERT INTO workouts (date, exercises, workoutDuration) VALUES (?, ?, ?)',
+                    [workoutData.date, workoutData.exercises, workoutData.workoutDuration],
+                    () => {
+                        console.log("Saved workout data with data", workoutData);
+                    },
+                    (_, error) => {
+                        console.error('Error saving workout:', error);
+                        alert('Error saving workout.');
+                    }
+                );
+            });
 
             // Clear the current workout
             setWorkout([]);

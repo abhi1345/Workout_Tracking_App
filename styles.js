@@ -15,7 +15,6 @@ const styles = StyleSheet.create({
     },
     cardText: {
         fontSize: 18,
-        fontFamily: "Nunito-Black",
     },
     input: {
         borderColor: '#ccc',
@@ -88,7 +87,6 @@ const styles = StyleSheet.create({
     },
     cardButtonText: {
         fontSize: 18,
-        fontFamily: "Nunito-Black",
     },
     workoutLogItem: {
         backgroundColor: '#fff',

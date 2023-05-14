@@ -1,85 +1,86 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { SafeAreaView, View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { formatTimeSeconds } from './utilities';
+import * as SQLite from 'expo-sqlite';
 
+import { formatTimeSeconds } from './utilities';
 import styles from './styles';
+
+const db = SQLite.openDatabase('workouts.db');
 
 export const WorkoutLogScreen = () => {
   const [savedWorkouts, setSavedWorkouts] = useState([]);
 
-  useFocusEffect(
-    useCallback(() => {
-      const loadWorkouts = async () => {
-        const workouts = await AsyncStorage.getItem('workouts');
-        if (workouts) {
-          setSavedWorkouts(JSON.parse(workouts));
-        }
-      };
+  const loadWorkouts = useCallback(() => {
 
-      loadWorkouts();
-    }, [])
-  );
+    try {
+      db.transaction(tx => {
+        tx.executeSql(
+          'SELECT * FROM workouts',
+          [],
+          (_, result) => {
+            const rows = result.rows;
+            let data = [];
+
+            for (let i = 0; i < rows.length; i++) {
+              let workout = rows.item(i);
+
+              try {
+                // Try to parse the exercises string
+                const parsedExercises = JSON.parse(workout.exercises);
+
+                // If parsing was successful, add the workout to the data array
+                data.push({ id: workout.id, date: workout.date, exercises: parsedExercises, workoutDuration: workout.workoutDuration });
+              } catch (error) {
+                console.log('Failed to parse exercises string for workout id ' + workout.id);
+                // If parsing failed, you could add the workout with the unparsed exercises string
+                // or you could just skip this workout
+                // This example skips the workout:
+                continue;
+              }
+            }
+
+            setSavedWorkouts(data);
+          },
+          (_, err) => {
+            console.error(`Error: ${err}`);
+          },
+        );
+      });
+    } catch (err) {
+      console.error(err);
+    }
+
+  }, []);
+
+
+  useFocusEffect(loadWorkouts);
 
   const deleteWorkout = async (workoutId) => {
     try {
-      const allWorkouts = await AsyncStorage.getItem('workouts');
-      let workouts = JSON.parse(allWorkouts);
-
-      if (workouts) {
-        console.log("Deleting workout: ", workouts[workoutId]);
-        delete workouts[workoutId];
-        await AsyncStorage.setItem('workouts', JSON.stringify(workouts));
-        setSavedWorkouts(workouts);
-      }
+      db.transaction((tx) => {
+        tx.executeSql('DELETE FROM workouts WHERE id = ?', [workoutId], () => {
+          console.log('Workout deleted:', workoutId);
+          loadWorkouts();
+        });
+      });
     } catch (error) {
       console.error('Error deleting workout:', error);
     }
   };
 
-  useEffect(() => {
-    const fetchWorkouts = async () => {
-      try {
-        const allWorkouts = await AsyncStorage.getItem('workouts');
-        setSavedWorkouts(JSON.parse(allWorkouts));
-      } catch (error) {
-        console.error('Error fetching workouts:', error);
-      }
-    };
-
-    fetchWorkouts();
-  }, []);
-
-  // Filter out workouts that are missing a date
-  const filteredWorkouts = Object.entries(savedWorkouts).filter(([workoutId, workoutData]) => workoutData.date);
-
-  // Sort workouts by date in reverse chronological order
-  const sortedWorkouts = filteredWorkouts.sort((a, b) => b[1].date.localeCompare(a[1].date));
-
-  // Render your workout data here
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
-        data={sortedWorkouts}
+        data={savedWorkouts}
         renderItem={({ item }) => {
-          const [workoutId, workoutData] = item;
-          const { id, date, exercises, workoutDuration } = workoutData;
-
-          if (!exercises || !id) {
-            return null;
-          }
-
-          if (!workoutDuration) {
-            console.log("cant find duration");
-          }
-
-          const formattedDate = String(date);
+          const { id, date, exercises, workoutDuration } = item;
+          console.log("Retrieved exercises in db", exercises, typeof (exercises));
 
           return (
             <View style={styles.card}>
               <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>Workout - {formattedDate}</Text>
+                <Text style={styles.cardTitle}>Workout - {date}</Text>
               </View>
               <Text style={styles.cardItem}>Duration: {formatTimeSeconds(workoutDuration)}</Text>
               {exercises.map((exercise, index) => (
@@ -95,14 +96,14 @@ export const WorkoutLogScreen = () => {
                 </Text>
               ))}
               <View style={styles.deleteButtonContainer}>
-                <TouchableOpacity style={styles.deleteButtonCard} onPress={() => deleteWorkout(workoutId)}>
+                <TouchableOpacity style={styles.deleteButtonCard} onPress={() => deleteWorkout(id)}>
                   <Text style={styles.deleteButton}>Delete</Text>
                 </TouchableOpacity>
               </View>
             </View>
           );
         }}
-        keyExtractor={(item) => item[0]}
+        keyExtractor={(item) => item.id.toString()}
       />
     </SafeAreaView>
   );

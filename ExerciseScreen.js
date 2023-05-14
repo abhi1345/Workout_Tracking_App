@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-    Button, SafeAreaView, TextInput, View, Text, TouchableOpacity, FlatList,
+    Button, SafeAreaView, TextInput, View, Text, TouchableOpacity, FlatList, ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from './styles';
@@ -59,7 +59,7 @@ export const ExerciseScreen = ({ route, navigation }) => {
 
                         console.log("retrieved prev exercise", foundExercise);
 
-                        if (foundExercise) {
+                        if (foundExercise && foundExercise.sets && foundExercise.sets.length > 0) {
                             history.push({
                                 workoutId: workout.id,
                                 date: workout.date,
@@ -87,12 +87,10 @@ export const ExerciseScreen = ({ route, navigation }) => {
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <Text style={styles.card}>{exercise.name}</Text>
             <View style={styles.inputContainer}>
                 <TextInput
                     ref={firstInputRef}
                     placeholder="Add Reps"
-                    // onChangeText={setReps}
                     onChangeText={(text) => {
                         setReps(text);
                         if (text.length == 1 && parseInt(text) > 3
@@ -103,7 +101,9 @@ export const ExerciseScreen = ({ route, navigation }) => {
                     value={reps}
                     keyboardType="number-pad"
                     style={styles.setRepInput}
+                    maxLength={2} // Add this line
                 />
+
                 <Text style={styles.repSetText}>Reps</Text>
                 <TextInput
                     ref={secondInputRef}
@@ -116,21 +116,23 @@ export const ExerciseScreen = ({ route, navigation }) => {
                 <Text style={styles.repSetText}>LBS</Text>
             </View>
             <Button title="Add Set" onPress={addSet} />
-            <View>
+
+            <ScrollView style={{ maxHeight: '30%' }}>
                 {sets.map((setReps, index) => (
                     <Text key={index}>
                         Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs
                     </Text>
                 ))}
-            </View>
+            </ScrollView>
             <View>
                 <Text style={styles.historyTitle}>Exercise History:</Text>
                 <FlatList
+                    style={{ maxHeight: '75%' }}
                     data={exerciseHistory}
                     renderItem={({ item }) => (
                         <View style={styles.historyItem}>
                             <Text style={styles.historyDate}>{item.date}:</Text>
-                            {item.sets.map((setReps, index) => (
+                            {item.sets && item.sets.map((setReps, index) => (
                                 <Text key={index}>
                                     Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs
                                 </Text>

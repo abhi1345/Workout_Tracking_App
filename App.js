@@ -22,7 +22,13 @@ function HomeStackNavigator({ navigation }) {
           headerShown: false, // Hide the header for the HomeScreen
         }}
       />
-      <HomeStack.Screen name="Exercise" component={ExerciseScreen} />
+      <HomeStack.Screen
+        name="Exercise"
+        component={ExerciseScreen}
+        options={({ route }) => ({
+          title: route.params.exercise.name,
+        })}
+      />
     </HomeStack.Navigator>
   );
 }
