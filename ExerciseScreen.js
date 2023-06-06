@@ -31,7 +31,7 @@ export const ExerciseScreen = ({ route, navigation }) => {
                     return item;
                 });
 
-                setWorkout(updatedWorkout);
+                route.params.modifyWorkout(updatedWorkout);
                 return newSets;
             });
         } else {

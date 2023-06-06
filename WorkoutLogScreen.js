@@ -16,6 +16,11 @@ export const WorkoutLogScreen = () => {
     try {
       db.transaction(tx => {
         tx.executeSql(
+          'CREATE TABLE IF NOT EXISTS workouts (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, exercises TEXT, workoutDuration INT);',
+          [],
+          () => console.log('Table created successfully')
+        );
+        tx.executeSql(
           'SELECT * FROM workouts',
           [],
           (_, result) => {

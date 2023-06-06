@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "AwesomeProject",
-    "slug": "AwesomeProject",
-    "version": "1.0.0",
+    "name": "LiftLogger",
+    "slug": "FitFlow",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -16,7 +16,8 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "versionCode": "1.0.0"
+      "versionCode": "1.0.0",
+      "bundleIdentifier": "com.FitFlow.MainApp"
     },
     "android": {
       "adaptiveIcon": {
@@ -30,7 +31,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "0ac078a8-4139-40f0-b704-4d0292548c1b"
+        "projectId": "3da66ebf-a007-433c-930d-f0e2118ed718"
       }
     }
   }
