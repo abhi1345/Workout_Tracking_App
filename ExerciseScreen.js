@@ -1,9 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-    Button, SafeAreaView, TextInput, View, Text, TouchableOpacity, FlatList, ScrollView,
+    Button, SafeAreaView, TextInput, View, Text, FlatList, ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SQLite from 'expo-sqlite';
+
 import styles from './styles';
+
+const db = SQLite.openDatabase('workouts.db');
 
 export const ExerciseScreen = ({ route, navigation }) => {
     const { workout, setWorkout, exercise } = route.params;
@@ -39,42 +43,52 @@ export const ExerciseScreen = ({ route, navigation }) => {
         }
     };
 
-    const loadExerciseHistory = async () => {
+    const loadExerciseHistory = () => {
         try {
-            const storedWorkouts = await AsyncStorage.getItem('workouts');
-            if (storedWorkouts) {
-                const workouts = JSON.parse(storedWorkouts);
-                console.log("retrieved workout", workouts);
-                const history = [];
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT * FROM workouts',
+                    [],
+                    (_, { rows: { _array } }) => {
+                        console.log("retrieved workout", _array);
+                        const history = [];
 
-                for (const workoutId in workouts) {
-                    const workout = workouts[workoutId];
-                    console.log("retrieved 1 workout", workout);
-                    console.log("retrieved 1 workout exercises", workout.exercises);
-                    if (workout.exercises != null) {
-                        const foundExercise = workout.exercises.find(
-                            (e) => e.name === exercise.name,
-                        );
+                        _array.forEach(workout => {
+                            console.log("retrieved 1 workout", workout);
+                            console.log("retrieved 1 workout exercises", workout.exercises);
 
+                            // Parse exercises data
+                            const exercises = JSON.parse(workout.exercises);
 
-                        console.log("retrieved prev exercise", foundExercise);
+                            if (exercises != null) {
+                                const foundExercise = exercises.find(
+                                    (e) => e.name === exercise.name,
+                                );
 
-                        if (foundExercise && foundExercise.sets && foundExercise.sets.length > 0) {
-                            history.push({
-                                workoutId: workout.id,
-                                date: workout.date,
-                                sets: foundExercise.sets,
-                            });
-                        }
+                                console.log("retrieved prev exercise", foundExercise);
+
+                                if (foundExercise && foundExercise.sets && foundExercise.sets.length > 0) {
+                                    history.push({
+                                        workoutId: workout.id,
+                                        date: workout.date,
+                                        sets: foundExercise.sets,
+                                    });
+                                }
+                            }
+                        });
+
+                        setExerciseHistory(history);
+                    },
+                    (_, error) => {
+                        console.error('Error retrieving workouts from DB:', error);
                     }
-                }
-
-                setExerciseHistory(history);
-            }
+                );
+            });
         } catch (error) {
             console.error('Error loading exercise history:', error);
         }
     };
+
 
     useEffect(() => {
         loadExerciseHistory();
