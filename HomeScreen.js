@@ -40,6 +40,10 @@ export const HomeScreen = ({ navigation }) => {
         }
     };
 
+    const modifyWorkout = (newWorkout) => {
+        setWorkout(newWorkout);
+      };
+
     const handleInputChange = (text) => {
         setExerciseInput(text);
         filterExercises(text);
@@ -239,8 +243,7 @@ export const HomeScreen = ({ navigation }) => {
                                         navigation.navigate('Exercise', {
                                             exercise: item,
                                             workout: workout,
-                                            setWorkout: setWorkout,
-                                            // saveExerciseData: saveExerciseData, // Pass the callback function
+                                            modifyWorkout: modifyWorkout,
                                         })
                                     }
                                     onDelete={() => removeExercise(item.id)}
