@@ -1,20 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import {
-    Button, SafeAreaView, TextInput, View, Text, FlatList, ScrollView,
+    Button, SafeAreaView, TextInput, View, Text, FlatList, ScrollView, TouchableOpacity, Animated
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as SQLite from 'expo-sqlite';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { Swipeable } from 'react-native-gesture-handler';
 
 import styles from './styles';
 
-const db = SQLite.openDatabase('workouts.db');
 
 export const ExerciseScreen = ({ route, navigation }) => {
     const { workout, setWorkout, exercise } = route.params;
     const [sets, setSets] = useState(() => exercise.sets || []);
     const [reps, setReps] = useState(() => exercise.reps || '');
     const [weight, setWeight] = useState(() => exercise.weight || '');
-    const [exerciseHistory, setExerciseHistory] = useState([]);
 
 
     const addSet = () => {
@@ -43,56 +41,71 @@ export const ExerciseScreen = ({ route, navigation }) => {
         }
     };
 
-    const loadExerciseHistory = () => {
-        try {
-            db.transaction((tx) => {
-                tx.executeSql(
-                    'SELECT * FROM workouts',
-                    [],
-                    (_, { rows: { _array } }) => {
-                        console.log("retrieved workout", _array);
-                        const history = [];
+    const deleteSet = (index) => {
+        setSets(prevSets => {
+            if (prevSets.length === 0) {
+                console.log('No sets to delete.');
+                return prevSets;
+            }
 
-                        _array.forEach(workout => {
-                            console.log("retrieved 1 workout", workout);
-                            console.log("retrieved 1 workout exercises", workout.exercises);
+            const lastSet = prevSets[index]; // Get the last set
+            console.log('Deleting set (reps, lbs):', lastSet); // Log the last set
 
-                            // Parse exercises data
-                            const exercises = JSON.parse(workout.exercises);
+            const newSets = [...prevSets];
+            newSets.splice(index, 1);; // Removes the element at index
 
-                            if (exercises != null) {
-                                const foundExercise = exercises.find(
-                                    (e) => e.name === exercise.name,
-                                );
-
-                                console.log("retrieved prev exercise", foundExercise);
-
-                                if (foundExercise && foundExercise.sets && foundExercise.sets.length > 0) {
-                                    history.push({
-                                        workoutId: workout.id,
-                                        date: workout.date,
-                                        sets: foundExercise.sets,
-                                    });
-                                }
-                            }
-                        });
-
-                        setExerciseHistory(history);
-                    },
-                    (_, error) => {
-                        console.error('Error retrieving workouts from DB:', error);
-                    }
-                );
+            const updatedWorkout = workout.map((item) => {
+                if (item.id === exercise.id) {
+                    return {
+                        ...item,
+                        sets: newSets,
+                    };
+                }
+                return item;
             });
-        } catch (error) {
-            console.error('Error loading exercise history:', error);
-        }
+
+            route.params.modifyWorkout(updatedWorkout);
+            return newSets;
+        });
     };
 
+    const renderRightAction = (progress, dragX, index) => {
+        const scale = dragX.interpolate({
+            inputRange: [-100, 0],
+            outputRange: [1, 0],
+            extrapolate: 'clamp',
+        });
+        return (
+            <TouchableOpacity onPress={() => deleteSet(index)}>
+                <View style={styles.deleteBox}>
+                    <Animated.Text
+                        style={[
+                            styles.deleteText,
+                            {
+                                transform: [{ scale }],
+                            },
+                        ]}>
+                        Delete
+                    </Animated.Text>
+                </View>
+            </TouchableOpacity>
+        );
+    };
 
-    useEffect(() => {
-        loadExerciseHistory();
-    }, []);
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity
+                    onPress={() => navigation.navigate('ExerciseHistory', { exerciseName: exercise.name })}
+                >
+                    <Icon name="clock-o" size={40} color="#000" style={{ marginRight: 10 }} />
+                </TouchableOpacity>
+            ),
+            headerStyle: {
+                height: 55, // Set your desired height
+            },
+        });
+    }, [exercise, navigation]);
 
 
 
@@ -131,31 +144,19 @@ export const ExerciseScreen = ({ route, navigation }) => {
             </View>
             <Button title="Add Set" onPress={addSet} />
 
-            <ScrollView style={{ maxHeight: '30%' }}>
+            <ScrollView>
                 {sets.map((setReps, index) => (
-                    <Text key={index}>
-                        Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs
-                    </Text>
+                    <Swipeable key={index} renderRightActions={(progress, dragX) => renderRightAction(progress, dragX, index)}>
+                        <View style={styles.card}>
+                            <Text style={styles.cardText}>
+                                Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs
+                            </Text>
+                        </View>
+                    </Swipeable>
                 ))}
             </ScrollView>
-            <View>
-                <Text style={styles.historyTitle}>Exercise History:</Text>
-                <FlatList
-                    style={{ maxHeight: '75%' }}
-                    data={exerciseHistory}
-                    renderItem={({ item }) => (
-                        <View style={styles.historyItem}>
-                            <Text style={styles.historyDate}>{item.date}:</Text>
-                            {item.sets && item.sets.map((setReps, index) => (
-                                <Text key={index}>
-                                    Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs
-                                </Text>
-                            ))}
-                        </View>
-                    )}
-                    keyExtractor={(item) => item.workoutId}
-                />
-            </View>
+
+
 
         </SafeAreaView>
     );

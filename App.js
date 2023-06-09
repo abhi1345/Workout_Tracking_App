@@ -7,6 +7,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { HomeScreen } from './HomeScreen.js';
 import { ExerciseScreen } from './ExerciseScreen.js';
 import { WorkoutLogScreen } from './WorkoutLogScreen';
+import { ExerciseHistoryScreen } from './ExerciseHistoryScreen.js';
+
 
 
 // const Stack = createStackNavigator();
@@ -29,9 +31,17 @@ function HomeStackNavigator({ navigation }) {
           title: route.params.exercise.name,
         })}
       />
+      <HomeStack.Screen
+        name="ExerciseHistory"
+        component={ExerciseHistoryScreen}
+        options={{
+          title: 'Exercise History', // Set the title for the ExerciseHistoryScreen
+        }}
+      />
     </HomeStack.Navigator>
   );
 }
+
 
 const Tab = createBottomTabNavigator();
 

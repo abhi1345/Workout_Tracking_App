@@ -85,6 +85,11 @@ const styles = StyleSheet.create({
         textAlignVertical: "center",
         textAlign: "center",
     },
+    deleteText: {
+        color: 'white',
+        textAlignVertical: "center",
+        textAlign: "center",
+    },
     cardButtonText: {
         fontSize: 18,
     },
@@ -209,6 +214,16 @@ const styles = StyleSheet.create({
         width: 100,
     },
     rightSwipeActions: {
+        backgroundColor: 'red',
+        justifyContent: 'center',
+        alignItems: 'flex-end',
+        width: 110,
+        borderRadius: 10,
+        padding: 30, // increased padding
+        marginVertical: 10, // increased margin
+        marginHorizontal: 10,
+    },
+    deleteBox: {
         backgroundColor: 'red',
         justifyContent: 'center',
         alignItems: 'flex-end',
