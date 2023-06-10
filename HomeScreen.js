@@ -3,7 +3,8 @@ import { Platform, SafeAreaView, TextInput, ScrollView, View, Text, FlatList, To
 import { formatTimeSeconds } from './utilities';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import * as SQLite from 'expo-sqlite';
-
+import { exerciseData } from './ExerciseList.js';
+import { createExerciseTable, insertExerciseData, checkTableExists } from './exerciseDB.js';
 import styles from './styles';
 
 const db = SQLite.openDatabase('workouts.db');
@@ -20,29 +21,20 @@ export const HomeScreen = ({ navigation }) => {
     const [elapsedTime, setElapsedTime] = useState(0);
     const [timerVisible, setTimerVisible] = useState(false);
 
-    const exerciseList = [
-        { name: 'Back Squat' },
-        { name: 'Barbell Bench Press' },
-        { name: 'Conventional Deadlift' },
-        { name: 'Sumo Deadlift' },
-        { name: 'Overhead Press' },
-        { name: 'Barbell Row' },
-        { name: 'Leg Press' },
-        { name: 'Bicep Curl' },
-    ];
+    const [exerciseList, setExerciseList] = useState([]);
 
     const filterExercises = (text) => {
         if (text === '') {
             setFilteredExercises([]);
         } else {
-            const filtered = exerciseList.filter((item) => item.name.toLowerCase().includes(text.toLowerCase()));
+            const filtered = exerciseList.filter((item) => item.toLowerCase().includes(text.toLowerCase()));
             setFilteredExercises(filtered);
         }
     };
 
     const modifyWorkout = (newWorkout) => {
         setWorkout(newWorkout);
-      };
+    };
 
     const handleInputChange = (text) => {
         setExerciseInput(text);
@@ -167,6 +159,42 @@ export const HomeScreen = ({ navigation }) => {
     useEffect(() => {
         let intervalId;
 
+        const checkAndLoadExercises = async () => {
+            try {
+                await checkTableExists((exists) => {
+                    if (!exists) {
+                        createExerciseTable();
+                        insertExerciseData(exerciseData);
+                    }
+
+                    // Once you're sure the table exists and has data, retrieve it.
+                    db.transaction(tx => {
+                        tx.executeSql(
+                            'SELECT name FROM exercises',
+                            [],
+                            (_, { rows }) => {
+                                // Map through the rows, extract each name, and add it to the exerciseList state.
+                                let data = [];
+                                for (let i = 0; i < rows.length; i++) {
+                                    data.push(rows.item(i).name);
+                                }
+                                setExerciseList(data);
+                                console.log("Set Exercise List from db");
+                                console.log(exerciseList);
+                            },
+                            (_, error) => {
+                                console.error('Error retrieving exercise names:', error);
+                            }
+                        );
+                    });
+                });
+            } catch (error) {
+                console.error('Error checking/creating exercises table:', error);
+            }
+        };
+
+        checkAndLoadExercises();
+
         if (timerVisible) {
             intervalId = setInterval(() => {
                 setElapsedTime(Math.floor((new Date() - workoutStartTime) / 1000));
@@ -220,15 +248,15 @@ export const HomeScreen = ({ navigation }) => {
                                 <TouchableOpacity
                                     onPress={() => {
                                         setFilteredExercises([]);
-                                        addExerciseWithInput(item.name);
+                                        addExerciseWithInput(item);
                                         Keyboard.dismiss();
                                     }}
                                     style={styles.dropdownItem}
                                 >
-                                    <Text style={styles.dropdownText}>{item.name}</Text>
+                                    <Text style={styles.dropdownText}>{item}</Text>
                                 </TouchableOpacity>
                             )}
-                            keyExtractor={(item) => item.name}
+                            keyExtractor={(item) => item}
                             style={[styles.dropdown]}
                         />
                     )}
