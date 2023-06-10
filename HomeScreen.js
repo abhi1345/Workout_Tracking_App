@@ -4,7 +4,7 @@ import { formatTimeSeconds } from './utilities';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import * as SQLite from 'expo-sqlite';
 import { exerciseData } from './ExerciseList.js';
-import { createExerciseTable, insertExerciseData, checkTableExists } from './exerciseDB.js';
+import { createExerciseTable, insertExerciseData, checkExerciseTableAccurate } from './exerciseDB.js';
 import styles from './styles';
 
 const db = SQLite.openDatabase('workouts.db');
@@ -161,8 +161,8 @@ export const HomeScreen = ({ navigation }) => {
 
         const checkAndLoadExercises = async () => {
             try {
-                await checkTableExists((exists) => {
-                    if (!exists) {
+                await checkExerciseTableAccurate((exercisesUpToDate) => {
+                    if (!exercisesUpToDate) {
                         createExerciseTable();
                         insertExerciseData(exerciseData);
                     }

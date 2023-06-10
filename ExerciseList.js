@@ -6,5 +6,6 @@ export const exerciseData = [
     { name: 'Leg Press', type: 'Weight', equipment: 'Machine' },
     { name: 'Dumbbell Bicep Curl', type: 'Weight', equipment: 'Dumbbell' },
     { name: 'Barbell Bicep Curl', type: 'Weight', equipment: 'Barbell' },
+    { name: 'Overhead Press', type: 'Weight', equipment: 'Barbell' },
     // Add all your other exercises here...
   ];
