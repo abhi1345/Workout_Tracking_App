@@ -23,11 +23,13 @@ export const HomeScreen = ({ navigation }) => {
 
     const [exerciseList, setExerciseList] = useState([]);
 
+    const HARDCREATEEXERCISES = true;
+
     const filterExercises = (text) => {
         if (text === '') {
             setFilteredExercises([]);
         } else {
-            const filtered = exerciseList.filter((item) => item.toLowerCase().includes(text.toLowerCase()));
+            const filtered = exerciseList.filter((item) => item.name.toLowerCase().includes(text.toLowerCase()));
             setFilteredExercises(filtered);
         }
     };
@@ -57,6 +59,7 @@ export const HomeScreen = ({ navigation }) => {
             sets: null,
             reps: null,
             weight: null,
+            type:null,
         };
 
         if (exerciseInput.trim() === '') {
@@ -70,22 +73,23 @@ export const HomeScreen = ({ navigation }) => {
     };
 
     const removeExercise = (exerciseId) => {
-        console.log("removing exercise", exerciseId,
+        console.log("removing exercise from workout", exerciseId,
             workout.find((exercise) => exercise.id !== exerciseId));
         const updatedWorkout = workout.filter((exercise) => exercise.id !== exerciseId);
         setWorkout(updatedWorkout);
     };
 
-    const addExerciseWithInput = (text) => {
+    const addExerciseWithInput = (exercise) => {
         const newExercise = {
             id: numExercises,
-            name: text,
+            name: exercise.name,
+            type: exercise.type,
             sets: null,
             reps: null,
             weight: null,
         };
 
-        if (text.trim() === '') {
+        if (exercise.name.trim() === '') {
             alert('Please enter a valid exercise name.');
             return;
         }
@@ -97,6 +101,7 @@ export const HomeScreen = ({ navigation }) => {
 
     const clearExercises = () => {
         setWorkout([]);
+        setNumExercises(0);
     };
 
     const saveWorkout = async () => {
@@ -104,7 +109,6 @@ export const HomeScreen = ({ navigation }) => {
         if (workoutStartTime) {
             const endTime = new Date();
             duration = Math.floor((endTime - workoutStartTime) / 1000); // Duration in seconds
-            console.log("duration is", duration);
         }
 
         if (workout.length === 0) {
@@ -119,20 +123,19 @@ export const HomeScreen = ({ navigation }) => {
             exercises: JSON.stringify(workout),
             workoutDuration: duration,
         };
-        console.log("Creating workout data with data", workoutData);
 
         try {
             db.transaction((tx) => {
                 tx.executeSql(
                     'CREATE TABLE IF NOT EXISTS workouts (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, exercises TEXT, workoutDuration INT);',
                     [],
-                    () => console.log('Table created successfully')
+                    () => console.log('workouts Table created successfully')
                 );
                 tx.executeSql(
                     'INSERT INTO workouts (date, exercises, workoutDuration) VALUES (?, ?, ?)',
                     [workoutData.date, workoutData.exercises, workoutData.workoutDuration],
                     () => {
-                        console.log("Saved workout data with data", workoutData);
+                        console.log("Saved workout data to db with data", workoutData);
                     },
                     (_, error) => {
                         console.error('Error saving workout:', error);
@@ -153,7 +156,6 @@ export const HomeScreen = ({ navigation }) => {
         setWorkoutStartTime(null);
         setTimerRunning(false);
         setTimerVisible(false);
-        console.log("Cleared workout timer");
     };
 
     useEffect(() => {
@@ -162,7 +164,7 @@ export const HomeScreen = ({ navigation }) => {
         const checkAndLoadExercises = async () => {
             try {
                 await checkExerciseTableAccurate((exercisesUpToDate) => {
-                    if (!exercisesUpToDate) {
+                    if (!exercisesUpToDate || HARDCREATEEXERCISES) {
                         createExerciseTable();
                         insertExerciseData(exerciseData);
                     }
@@ -170,17 +172,16 @@ export const HomeScreen = ({ navigation }) => {
                     // Once you're sure the table exists and has data, retrieve it.
                     db.transaction(tx => {
                         tx.executeSql(
-                            'SELECT name FROM exercises',
+                            'SELECT name, type FROM exercises',
                             [],
                             (_, { rows }) => {
                                 // Map through the rows, extract each name, and add it to the exerciseList state.
                                 let data = [];
                                 for (let i = 0; i < rows.length; i++) {
-                                    data.push(rows.item(i).name);
+                                    data.push({name: rows.item(i).name, type: rows.item(i).type});
                                 }
                                 setExerciseList(data);
-                                console.log("Set Exercise List from db");
-                                console.log(exerciseList);
+                                console.log("Set Exercise List from db now", exerciseList);
                             },
                             (_, error) => {
                                 console.error('Error retrieving exercise names:', error);
@@ -253,10 +254,10 @@ export const HomeScreen = ({ navigation }) => {
                                     }}
                                     style={styles.dropdownItem}
                                 >
-                                    <Text style={styles.dropdownText}>{item}</Text>
+                                    <Text style={styles.dropdownText}>{item.name}</Text>
                                 </TouchableOpacity>
                             )}
-                            keyExtractor={(item) => item}
+                            keyExtractor={(item) => item.name}
                             style={[styles.dropdown]}
                         />
                     )}
@@ -307,7 +308,7 @@ const Card = ({ exercise, onPress, onDelete }) => {
     };
 
     const swipeFromRightOpen = () => {
-        console.log('Swiped from right');
+        return;
     };
 
     return (

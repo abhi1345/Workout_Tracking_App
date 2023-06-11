@@ -179,6 +179,7 @@ const styles = StyleSheet.create({
         maxHeight: 200,
         borderWidth: 1,
         borderColor: 'grey',
+        paddingTop: 0,
     },
     startWorkoutButton: {
         backgroundColor: '#1a73e8',

@@ -1,15 +1,18 @@
-import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import {
     Button, SafeAreaView, TextInput, View, Text, FlatList, ScrollView, TouchableOpacity, Animated
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Swipeable } from 'react-native-gesture-handler';
+import * as SQLite from 'expo-sqlite';
 
 import styles from './styles';
 
+const db = SQLite.openDatabase('workouts.db');
 
 export const ExerciseScreen = ({ route, navigation }) => {
-    const { workout, setWorkout, exercise } = route.params;
+    const { workout, exercise } = route.params;
+    console.log("Starting screen with route params:", route.params);
     const [sets, setSets] = useState(() => exercise.sets || []);
     const [reps, setReps] = useState(() => exercise.reps || '');
     const [weight, setWeight] = useState(() => exercise.weight || '');
@@ -92,6 +95,7 @@ export const ExerciseScreen = ({ route, navigation }) => {
         );
     };
 
+
     useLayoutEffect(() => {
         navigation.setOptions({
             headerRight: () => (
@@ -117,7 +121,7 @@ export const ExerciseScreen = ({ route, navigation }) => {
             <View style={styles.inputContainer}>
                 <TextInput
                     ref={firstInputRef}
-                    placeholder="Add Reps"
+                    placeholder={exercise.type === 'Cardio' ? "Add Minutes" : "Add Reps"}
                     onChangeText={(text) => {
                         setReps(text);
                         if (text.length == 1 && parseInt(text) > 3
@@ -131,16 +135,16 @@ export const ExerciseScreen = ({ route, navigation }) => {
                     maxLength={2} // Add this line
                 />
 
-                <Text style={styles.repSetText}>Reps</Text>
+                <Text style={styles.repSetText}>{exercise.type === 'Cardio' ? "Minutes" : "Reps"}</Text>
                 <TextInput
                     ref={secondInputRef}
-                    placeholder="Add Weight"
+                    placeholder={exercise.type === 'Cardio' ? "Add Miles" : "Add Weight"}
                     onChangeText={setWeight}
                     value={weight}
                     keyboardType="decimal-pad"
                     style={styles.setRepInput}
                 />
-                <Text style={styles.repSetText}>LBS</Text>
+                <Text style={styles.repSetText}>{exercise.type === 'Cardio' ? "Miles" : "LBS"}</Text>
             </View>
             <Button title="Add Set" onPress={addSet} />
 

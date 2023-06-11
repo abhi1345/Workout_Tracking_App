@@ -8,24 +8,35 @@ const db = SQLite.openDatabase('workouts.db');
 
 export const createExerciseTable = () => {
     db.transaction((tx) => {
+        // delete the existing table
         tx.executeSql(
-            'CREATE TABLE IF NOT EXISTS exercises (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, type TEXT, equipment TEXT);',
+            'DROP TABLE IF EXISTS exercises;',
             [],
-            () => console.log('Exercise table created successfully'),
-            (_, error) => console.error('Error creating exercise table:', error)
+            () => {
+                console.log('exercises table dropped successfully');
+                // create a new table
+                tx.executeSql(
+                    'CREATE TABLE exercises (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, type TEXT, equipment TEXT, primary_muscle TEXT);',
+                    [],
+                    () => console.log('exercises table created successfully'),
+                    (_, error) => console.error('Error creating exercise table:', error)
+                );
+            },
+            (_, error) => console.error('Error dropping exercise table:', error)
         );
     });
 };
 
+
 export const insertExerciseData = (exerciseData) => {
     exerciseData.forEach((exercise) => {
-        const { name, type, equipment } = exercise;
+        const { name, type, equipment, primary_muscle } = exercise;
 
         db.transaction((tx) => {
             tx.executeSql(
-                'INSERT INTO exercises (name, type, equipment) VALUES (?, ?, ?)',
-                [name, type, equipment],
-                () => console.log('Inserted exercise data successfully'),
+                'INSERT INTO exercises (name, type, equipment, primary_muscle) VALUES (?, ?, ?, ?)',
+                [name, type, equipment, primary_muscle],
+                () => console.log('Inserted exercise data successfully for', exercise),
                 (_, error) => console.error('Error inserting exercise data:', error)
             );
         });
@@ -33,18 +44,17 @@ export const insertExerciseData = (exerciseData) => {
 };
 
 export const checkExerciseTableAccurate = (callback) => {
-    console.log("strating check function");
     db.transaction((tx) => {
         tx.executeSql(
             "SELECT name FROM sqlite_master WHERE type='table' AND name='exercises';",
             [],
             (_, { rows: { _array } }) => {
                 if (_array.length === 0) {
-                    console.log("no rows found")
+                    console.log("no rows found in exercises table when checking");
                     callback(false);
                 } else {
                     // The table exists, now we need to check if all the data from exerciseData is in the table
-                    console.log("table exists");
+                    console.log("exercises table exists, rows found");
                     tx.executeSql(
                         'SELECT name FROM exercises;',
                         [],
@@ -65,7 +75,7 @@ export const checkExerciseTableAccurate = (callback) => {
                                     (_, error) => console.error('Error inserting missing exercise:', error)
                                 );
                             });
-                            console.log("inserted missing exercises");
+                            console.log("inserted missing exercises:", missingExercises);
                             callback(true);
                         },
                         (_, error) => console.error('Error checking exercise data:', error)
