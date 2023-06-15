@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import { View, Text, FlatList } from 'react-native';
 import styles from './styles';
 import * as SQLite from 'expo-sqlite';
+import { isoDateToLocale } from './utilities';
 
 const db = SQLite.openDatabase('workouts.db');
 
@@ -9,12 +10,10 @@ export const ExerciseHistoryScreen = ({ route }) => {
     const { exerciseName } = route.params;
     const [exerciseHistory, setExerciseHistory] = useState([]);
 
-    console.log(exerciseHistory, "EXH");
-
     useEffect(() => {
         db.transaction((tx) => {
             tx.executeSql(
-                'SELECT * FROM workouts',
+                'SELECT * FROM workouts ORDER BY date DESC',
                 [],
                 (_, { rows: { _array } }) => {
                     console.log("retrieved workout for exercise", exerciseName, _array);
@@ -23,15 +22,10 @@ export const ExerciseHistoryScreen = ({ route }) => {
                     _array.forEach(workout => {
                         const exercises = JSON.parse(workout.exercises);
 
-                        console.log("EHS retrieved 1 workout", workout);
-                        console.log("EHS retrieved 1 workout exercises", exercises);
-
                         if (exercises != null) {
                             const foundExercise = exercises.find(
                                 (e) => e.name === exerciseName,
                             );
-
-                            console.log("EHS retrieved prev exercise", foundExercise);
 
                             if (foundExercise && foundExercise.sets && foundExercise.sets.length > 0) {
                                 history.push({
@@ -44,7 +38,6 @@ export const ExerciseHistoryScreen = ({ route }) => {
                     });
 
                     setExerciseHistory(history);
-                    console.log("EHS GOTIT", history, exerciseHistory);
                 },
                 (_, error) => {
                     console.error('EHS Error retrieving workouts from DB:', error);
@@ -57,11 +50,10 @@ export const ExerciseHistoryScreen = ({ route }) => {
         <View>
             <Text style={styles.historyTitle}>Exercise History:</Text>
             <FlatList
-                style={{ maxHeight: '75%' }}
                 data={exerciseHistory}
                 renderItem={({ item }) => (
                     <View style={styles.historyItem}>
-                        <Text style={styles.historyDate}>{item.date}:</Text>
+                        <Text style={styles.historyDate}>{isoDateToLocale(item.date)}:</Text>
                         {item.sets && item.sets.map((setReps, index) => (
                             <Text key={index}>
                                 Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs

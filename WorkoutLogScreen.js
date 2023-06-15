@@ -3,7 +3,7 @@ import { SafeAreaView, View, Text, FlatList, TouchableOpacity } from 'react-nati
 import { useFocusEffect } from '@react-navigation/native';
 import * as SQLite from 'expo-sqlite';
 
-import { formatTimeSeconds } from './utilities';
+import { formatTimeSeconds, isoDateToLocale } from './utilities';
 import styles from './styles';
 
 const db = SQLite.openDatabase('workouts.db');
@@ -21,7 +21,7 @@ export const WorkoutLogScreen = () => {
           () => console.log('Table created successfully')
         );
         tx.executeSql(
-          'SELECT * FROM workouts',
+          'SELECT * FROM workouts ORDER BY date DESC',
           [],
           (_, result) => {
             const rows = result.rows;
@@ -85,7 +85,7 @@ export const WorkoutLogScreen = () => {
           return (
             <View style={styles.card}>
               <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>Workout - {date}</Text>
+                <Text style={styles.cardTitle}>Workout - {isoDateToLocale(date)}</Text>
               </View>
               <Text style={styles.cardItem}>Duration: {formatTimeSeconds(workoutDuration)}</Text>
               {exercises.map((exercise, index) => (

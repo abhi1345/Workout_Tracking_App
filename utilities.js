@@ -7,3 +7,8 @@ export const formatTimeSeconds = (seconds) => {
     }
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
 };
+
+export const isoDateToLocale = (dateString) => {
+    let dateObj = new Date(dateString);
+    return dateObj.toLocaleString();
+}

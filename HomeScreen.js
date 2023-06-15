@@ -119,7 +119,7 @@ export const HomeScreen = ({ navigation }) => {
 
         const workoutData = {
             id: `workout-${Date.now()}`,
-            date: new Date().toLocaleString(),
+            date: new Date().toISOString(),
             exercises: JSON.stringify(workout),
             workoutDuration: duration,
         };
