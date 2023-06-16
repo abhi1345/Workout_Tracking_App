@@ -22,6 +22,6 @@ export const exerciseData = [
   { name: 'Burpees', type: 'Weight', equipment: 'Bodyweight', primary_muscle: 'Full Body' },
   { name: 'Elliptical Trainer', type: 'Cardio', equipment: 'Elliptical Machine', primary_muscle: 'Legs' },
   { name: 'Rowing Machine', type: 'Cardio', equipment: 'Rowing Machine', primary_muscle: 'Full Body' },
-  { name: 'Barbell Row', type: 'Cardio', equipment: 'Barbell', primary_muscle: 'Back' },
+  { name: 'Barbell Row', type: 'Weight', equipment: 'Barbell', primary_muscle: 'Back' },
   // Add more exercises here...
 ];

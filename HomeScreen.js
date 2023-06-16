@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Platform, SafeAreaView, TextInput, ScrollView, View, Text, FlatList, TouchableOpacity, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView } from 'react-native';
-import { formatTimeSeconds } from './utilities';
+import { formatTimeSeconds, localeDateStringToISO, isoDateStringLocaleFormat } from './utilities';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import * as SQLite from 'expo-sqlite';
 import { exerciseData } from './ExerciseList.js';
@@ -59,7 +59,7 @@ export const HomeScreen = ({ navigation }) => {
             sets: null,
             reps: null,
             weight: null,
-            type:null,
+            type: null,
         };
 
         if (exerciseInput.trim() === '') {
@@ -115,7 +115,6 @@ export const HomeScreen = ({ navigation }) => {
             alert('No exercises to save. Add exercises before saving the workout.');
             return;
         }
-
 
         const workoutData = {
             id: `workout-${Date.now()}`,
@@ -178,10 +177,9 @@ export const HomeScreen = ({ navigation }) => {
                                 // Map through the rows, extract each name, and add it to the exerciseList state.
                                 let data = [];
                                 for (let i = 0; i < rows.length; i++) {
-                                    data.push({name: rows.item(i).name, type: rows.item(i).type});
+                                    data.push({ name: rows.item(i).name, type: rows.item(i).type });
                                 }
                                 setExerciseList(data);
-                                console.log("Set Exercise List from db now", exerciseList);
                             },
                             (_, error) => {
                                 console.error('Error retrieving exercise names:', error);
