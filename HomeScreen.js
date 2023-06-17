@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Platform, SafeAreaView, TextInput, ScrollView, View, Text, FlatList, TouchableOpacity, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView } from 'react-native';
-import { formatTimeSeconds, localeDateStringToISO, isoDateStringLocaleFormat } from './utilities';
+import { formatTimeSeconds, localeDateStringToISO, isDateStringInLocaleFormat } from './utilities';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import * as SQLite from 'expo-sqlite';
 import { exerciseData } from './ExerciseList.js';

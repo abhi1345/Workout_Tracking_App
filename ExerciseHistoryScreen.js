@@ -1,8 +1,8 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList } from 'react-native';
 import styles from './styles';
 import * as SQLite from 'expo-sqlite';
-import { isoDateToLocale } from './utilities';
+import { isoDateToLocale, isDateStringInLocaleFormat } from './utilities';
 
 const db = SQLite.openDatabase('workouts.db');
 
@@ -30,7 +30,7 @@ export const ExerciseHistoryScreen = ({ route }) => {
                             if (foundExercise && foundExercise.sets && foundExercise.sets.length > 0) {
                                 history.push({
                                     workoutId: workout.id,
-                                    date: workout.date,
+                                    date: workoutDate,
                                     sets: foundExercise.sets,
                                 });
                             }

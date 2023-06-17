@@ -3,13 +3,28 @@ import { SafeAreaView, View, Text, FlatList, TouchableOpacity } from 'react-nati
 import { useFocusEffect } from '@react-navigation/native';
 import * as SQLite from 'expo-sqlite';
 
-import { formatTimeSeconds, isoDateToLocale } from './utilities';
+import { formatTimeSeconds, isoDateToLocale, isDateStringInLocaleFormat, localeDateStringToISO } from './utilities';
 import styles from './styles';
 
 const db = SQLite.openDatabase('workouts.db');
 
 export const WorkoutLogScreen = () => {
   const [savedWorkouts, setSavedWorkouts] = useState([]);
+
+  const updateDateInDatabase = (workoutId, newDate) => {
+    db.transaction(tx => {
+        tx.executeSql(
+            'UPDATE workouts SET date = ? WHERE id = ?',
+            [newDate, workoutId],
+            (_, result) => {
+                console.log(`Successfully updated date for workout id ${workoutId}`);
+            },
+            (_, err) => {
+                console.error(`Error updating date for workout id ${workoutId}: ${err}`);
+            }
+        );
+    });
+};
 
   const loadWorkouts = useCallback(() => {
 
@@ -29,6 +44,13 @@ export const WorkoutLogScreen = () => {
 
             for (let i = 0; i < rows.length; i++) {
               let workout = rows.item(i);
+
+              let workoutDate = workout.date;
+              // If the date is not in ISO format, convert it
+              if (isDateStringInLocaleFormat(workout.date)) {
+                workoutDate = localeDateStringToISO(workout.date);
+                updateDateInDatabase(workout.id, workoutDate);
+              }
 
               try {
                 // Try to parse the exercises string
