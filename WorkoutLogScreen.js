@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { SafeAreaView, View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { SafeAreaView, View, Text, FlatList, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import * as SQLite from 'expo-sqlite';
 
@@ -13,18 +13,18 @@ export const WorkoutLogScreen = () => {
 
   const updateDateInDatabase = (workoutId, newDate) => {
     db.transaction(tx => {
-        tx.executeSql(
-            'UPDATE workouts SET date = ? WHERE id = ?',
-            [newDate, workoutId],
-            (_, result) => {
-                console.log(`Successfully updated date for workout id ${workoutId}`);
-            },
-            (_, err) => {
-                console.error(`Error updating date for workout id ${workoutId}: ${err}`);
-            }
-        );
+      tx.executeSql(
+        'UPDATE workouts SET date = ? WHERE id = ?',
+        [newDate, workoutId],
+        (_, result) => {
+          console.log(`Successfully updated date for workout id ${workoutId}`);
+        },
+        (_, err) => {
+          console.error(`Error updating date for workout id ${workoutId}: ${err}`);
+        }
+      );
     });
-};
+  };
 
   const loadWorkouts = useCallback(() => {
 
@@ -97,41 +97,52 @@ export const WorkoutLogScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <FlatList
-        data={savedWorkouts}
-        renderItem={({ item }) => {
-          const { id, date, exercises, workoutDuration } = item;
-          console.log("Retrieved exercises in db", exercises, typeof (exercises));
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <SafeAreaView style={styles.container}>
+        <FlatList
+          data={savedWorkouts}
+          renderItem={({ item }) => {
+            const { id, date, exercises, workoutDuration } = item;
+            console.log("Retrieved exercises in db", exercises, typeof (exercises));
 
-          return (
-            <View style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>Workout - {isoDateToLocale(date)}</Text>
-              </View>
-              <Text style={styles.cardItem}>Duration: {formatTimeSeconds(workoutDuration)}</Text>
-              {exercises.map((exercise, index) => (
-                <Text style={styles.cardItem} key={index}>
-                  {exercise.name} {'\n'}
-                  {exercise.sets !== null &&
-                    Array.isArray(exercise.sets) &&
-                    exercise.sets.map((setReps, index) => (
-                      <Text key={index}>
-                        {'\t'}Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs {'\n'}
-                      </Text>
-                    ))}
-                </Text>
-              ))}
-              <View style={styles.deleteButtonContainer}>
+            return (
+              <View style={styles.workoutLogCard}>
+                <View style={styles.cardHeader}>
+                  <Text style={styles.cardTitle}>Workout - {isoDateToLocale(date)}</Text>
+                </View>
+                <Text style={styles.cardItem}>Duration: {formatTimeSeconds(workoutDuration)}</Text>
+                {exercises.map((exercise, index) => (
+                  <Text style={styles.cardItem} key={index}>
+                    {exercise.name} {'\n'}
+                    {exercise.sets !== null &&
+                      Array.isArray(exercise.sets) &&
+                      exercise.sets.map((setReps, index) => (
+                        <Text key={index}>
+                          {'\t'}Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs {'\n'}
+                        </Text>
+                      ))}
+                  </Text>
+                ))}
+                {/* <View style={styles.deleteButtonContainer}>
                 <TouchableOpacity style={styles.deleteButtonCard} onPress={() => deleteWorkout(id)}>
                   <Text style={styles.deleteButton}>Delete</Text>
                 </TouchableOpacity>
+              </View> */}
+                <View
+                  style={{
+                    borderBottomColor: 'gray',
+                    borderBottomWidth: 1,
+                  }}
+                />
               </View>
-            </View>
-          );
-        }}
-        keyExtractor={(item) => item.id.toString()}
-      />
-    </SafeAreaView>
+            );
+          }}
+          keyExtractor={(item) => item.id.toString()}
+        />
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 };

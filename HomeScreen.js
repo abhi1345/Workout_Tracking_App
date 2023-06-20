@@ -10,6 +10,7 @@ import styles from './styles';
 const db = SQLite.openDatabase('workouts.db');
 
 export const HomeScreen = ({ navigation }) => {
+
     const [workout, setWorkout] = useState([]);
     const [numExercises, setNumExercises] = useState(0);
 
@@ -225,8 +226,8 @@ export const HomeScreen = ({ navigation }) => {
                     </TouchableOpacity>
                     <View>
                         {timerVisible && (
-                            <View style={styles.timerText}>
-                                <Text>{formatTimeSeconds(elapsedTime)}</Text>
+                            <View style={styles.timerTextContainer}>
+                                <Text style={styles.timerText}>{formatTimeSeconds(elapsedTime)}</Text>
                             </View>
                         )}
                     </View>
@@ -234,10 +235,15 @@ export const HomeScreen = ({ navigation }) => {
                         <TextInput
                             style={styles.input}
                             placeholder="Type an exercise, then click Add"
+                            placeholderTextColor="#5c5c6c"
                             onChangeText={handleInputChange}
                             value={exerciseInput}
                         />
-                        <CardButton style={styles.addExerciseCardButton} title="Add" onPress={addExercise} />
+                        <CardButton
+                            style={styles.addExerciseCardButton}
+                            title="Add"
+                            color="#841584"
+                            onPress={addExercise} />
                     </View>
                     {filteredExercises.length > 0 && (
                         <FlatList
@@ -252,7 +258,7 @@ export const HomeScreen = ({ navigation }) => {
                                     }}
                                     style={styles.dropdownItem}
                                 >
-                                    <Text style={styles.dropdownText}>{item.name}</Text>
+                                    <Text style={{ fontSize: 15, color:'gray' }}>{item.name}</Text>
                                 </TouchableOpacity>
                             )}
                             keyExtractor={(item) => item.name}
@@ -279,7 +285,7 @@ export const HomeScreen = ({ navigation }) => {
                             keyExtractor={(item) => item.id}
                         />
                     </View>
-                    <CardButton title="Clear exercises" onPress={clearExercises} />
+                    <CardButton title="Clear exercises" onPress={clearExercises} color="#fff" />
                     <TouchableOpacity
                         style={[
                             styles.saveWorkoutButton,
@@ -322,9 +328,9 @@ const Card = ({ exercise, onPress, onDelete }) => {
                     <Text style={styles.cardText}>{exercise.name} </Text>
                     <Text style={{ color: 'gray' }}> (click to add sets)</Text>
                 </Text>
-                <View>
+                <View style={{ marginTop: 5 }}>
                     {exercise.sets !== null && exercise.sets.map((setReps, index) => (
-                        <Text key={index}>
+                        <Text key={index} style={{ color: 'gray' }} >
                             Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs
                         </Text>
                     ))}

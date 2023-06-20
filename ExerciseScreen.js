@@ -102,11 +102,12 @@ export const ExerciseScreen = ({ route, navigation }) => {
                 <TouchableOpacity
                     onPress={() => navigation.navigate('ExerciseHistory', { exerciseName: exercise.name })}
                 >
-                    <Icon name="clock-o" size={40} color="#000" style={{ marginRight: 10 }} />
+                    <Icon name="clock-o" size={37} color="#fff" style={{ marginRight: 10 }} />
                 </TouchableOpacity>
             ),
             headerStyle: {
-                height: 55, // Set your desired height
+                height: 91, // Set your desired height
+                backgroundColor: "#19162b",
             },
         });
     }, [exercise, navigation]);
@@ -122,6 +123,7 @@ export const ExerciseScreen = ({ route, navigation }) => {
                 <TextInput
                     ref={firstInputRef}
                     placeholder={exercise.type === 'Cardio' ? "Add Minutes" : "Add Reps"}
+                    placeholderTextColor="gray"
                     onChangeText={(text) => {
                         setReps(text);
                         if (text.length == 1 && parseInt(text) > 3
@@ -139,6 +141,7 @@ export const ExerciseScreen = ({ route, navigation }) => {
                 <TextInput
                     ref={secondInputRef}
                     placeholder={exercise.type === 'Cardio' ? "Add Miles" : "Add Weight"}
+                    placeholderTextColor="gray"
                     onChangeText={setWeight}
                     value={weight}
                     keyboardType="decimal-pad"
@@ -146,9 +149,9 @@ export const ExerciseScreen = ({ route, navigation }) => {
                 />
                 <Text style={styles.repSetText}>{exercise.type === 'Cardio' ? "Miles" : "LBS"}</Text>
             </View>
-            <Button title="Add Set" onPress={addSet} />
+            <Button title="Add Set" onPress={addSet} color="#9088eb" />
 
-            <ScrollView>
+            <ScrollView style={{ backgroundColor: '#19162b' }}>
                 {sets.map((setReps, index) => (
                     <Swipeable key={index} renderRightActions={(progress, dragX) => renderRightAction(progress, dragX, index)}>
                         <View style={styles.card}>
@@ -159,9 +162,6 @@ export const ExerciseScreen = ({ route, navigation }) => {
                     </Swipeable>
                 ))}
             </ScrollView>
-
-
-
         </SafeAreaView>
     );
 };
