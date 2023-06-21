@@ -5,6 +5,7 @@ import Swipeable from 'react-native-gesture-handler/Swipeable';
 import * as SQLite from 'expo-sqlite';
 import { exerciseData } from './ExerciseList.js';
 import { createExerciseTable, insertExerciseData, checkExerciseTableAccurate } from './exerciseDB.js';
+import fetch from 'isomorphic-fetch';
 import styles from './styles';
 
 const db = SQLite.openDatabase('workouts.db');
@@ -23,17 +24,38 @@ export const HomeScreen = ({ navigation }) => {
     const [timerVisible, setTimerVisible] = useState(false);
 
     const [exerciseList, setExerciseList] = useState([]);
+    const [justAddedExercise, setJustAddedExercise] = useState(false);
+
 
     const HARDCREATEEXERCISES = true;
 
-    const filterExercises = (text) => {
+    const filterExercises = async (text) => {
         if (text === '') {
             setFilteredExercises([]);
         } else {
+            // const semanticMatches = [];
+            // try {
+            //     const url = `http://localhost:5003/?name=${text}`;
+            //     const response = await fetch(url);
+            //     const data = await response.text(); // Extract response as text
+            //     const jsonData = JSON.parse(data); // Parse JSON string
+
+            //     for (let i = 0; i < jsonData.matches.length; i++) {
+            //         semanticMatches.push(jsonData.matches[i]["id"]);
+            //     }
+
+            // } catch (error) {
+            //     console.error(error);
+            // }
+
             const filtered = exerciseList.filter((item) => item.name.toLowerCase().includes(text.toLowerCase()));
+            // const filtered = exerciseList.filter((item) => item.name.toLowerCase().includes(text.toLowerCase()) || semanticMatches.includes(item.name));
+
+            console.log("New exlist", filtered);
             setFilteredExercises(filtered);
         }
     };
+
 
     const modifyWorkout = (newWorkout) => {
         setWorkout(newWorkout);
@@ -41,7 +63,13 @@ export const HomeScreen = ({ navigation }) => {
 
     const handleInputChange = (text) => {
         setExerciseInput(text);
-        filterExercises(text);
+        console.log("change in handleInputChange");
+        if (justAddedExercise) {
+            setFilteredExercises([]);
+        } else {
+            filterExercises(text);
+        }
+        console.log("exercise var", justAddedExercise);
     };
 
     const startWorkout = () => {
@@ -69,8 +97,9 @@ export const HomeScreen = ({ navigation }) => {
         }
 
         setWorkout((prevWorkout) => [...prevWorkout, newExercise]);
-        setExerciseInput('');
+        // setExerciseInput('');
         setNumExercises(numExercises + 1);
+        setJustAddedExercise(true);
     };
 
     const removeExercise = (exerciseId) => {
@@ -97,8 +126,18 @@ export const HomeScreen = ({ navigation }) => {
 
         setWorkout((prevWorkout) => [...prevWorkout, newExercise]);
         setExerciseInput('');
+        setFilteredExercises([]);
+        console.log("this is ei", exerciseInput);
         setNumExercises(numExercises + 1);
+        setJustAddedExercise(true);
     };
+
+    const setJustAddedExerciseFalse = () => {
+        if (justAddedExercise) {
+            setExerciseInput('');
+        }
+        setJustAddedExercise(false);
+    }
 
     const clearExercises = () => {
         setWorkout([]);
@@ -157,6 +196,17 @@ export const HomeScreen = ({ navigation }) => {
         setTimerRunning(false);
         setTimerVisible(false);
     };
+
+    useEffect(() => {
+        console.log("Updated exerciseInput: ", exerciseInput);
+        console.log("Updated justAddedExerciseVar: ", justAddedExercise);
+        console.log("Updated filteredExercises: ", filteredExercises);
+        if (exerciseInput === '') {
+            // perform an action
+            setExerciseInput('');
+        }
+    }, [exerciseInput, justAddedExercise, filteredExercises]);
+
 
     useEffect(() => {
         let intervalId;
@@ -233,11 +283,13 @@ export const HomeScreen = ({ navigation }) => {
                     </View>
                     <View style={styles.inputContainer}>
                         <TextInput
+                            // key={exerciseInput}
                             style={styles.input}
                             placeholder="Type an exercise, then click Add"
                             placeholderTextColor="#5c5c6c"
                             onChangeText={handleInputChange}
-                            value={exerciseInput}
+                            value={justAddedExercise ? '' : exerciseInput}
+                            onFocus={setJustAddedExerciseFalse}
                         />
                         <CardButton
                             style={styles.addExerciseCardButton}
@@ -258,15 +310,22 @@ export const HomeScreen = ({ navigation }) => {
                                     }}
                                     style={styles.dropdownItem}
                                 >
-                                    <Text style={{ fontSize: 15, color:'gray' }}>{item.name}</Text>
+                                    <Text style={{ fontSize: 15, color: 'gray' }}>{item.name}</Text>
                                 </TouchableOpacity>
                             )}
                             keyExtractor={(item) => item.name}
-                            style={[styles.dropdown]}
+                            style={[
+                                styles.dropdown,
+                                {
+                                    maxHeight: Math.min(filteredExercises.length * 40, 150),
+                                    height: filteredExercises.length * 40,
+                                    minHeight: 40
+                                },
+                            ]}
                         />
                     )}
 
-                    <View style={{ maxHeight: '50%' }}>
+                    <View style={{ maxHeight: "50%", flex: 1, flexGrow: 1 }}>
                         <FlatList
                             data={workout}
                             renderItem={({ item }) => (

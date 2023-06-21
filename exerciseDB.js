@@ -6,6 +6,8 @@ import { exerciseData } from './ExerciseList.js';
 
 const db = SQLite.openDatabase('workouts.db');
 
+
+
 export const createExerciseTable = () => {
     db.transaction((tx) => {
         // delete the existing table

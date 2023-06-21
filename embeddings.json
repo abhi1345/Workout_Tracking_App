@@ -1,0 +1,116 @@
+{
+    "vectors": [
+      {
+        "id": "Back Squat",
+        "metadata": {},
+        "values": [0.7, 0.9]
+      },
+      {
+        "id": "Bench Press",
+        "metadata": {},
+        "values": [0.2, 0.6]
+      },
+      {
+        "id": "Leg Press",
+        "metadata": {},
+        "values": [0.7, 0.9]
+      },
+      {
+        "id": "Dumbbell Bicep Curl",
+        "metadata": {},
+        "values": [0.4, 0.3]
+      },
+      {
+        "id": "Barbell Bicep Curl",
+        "metadata": {},
+        "values": [0.4, 0.4]
+      },
+      {
+        "id": "Overhead Shoulder Press",
+        "metadata": {},
+        "values": [0.1, 0.5]
+      },
+      {
+        "id": "Deadlift",
+        "metadata": {},
+        "values": [0.8, 0.9]
+      },
+      {
+        "id": "Pull-up",
+        "metadata": {},
+        "values": [0.5, 0.1]
+      },
+      {
+        "id": "Push-up",
+        "metadata": {},
+        "values": [0.2, 0.1]
+      },
+      {
+        "id": "Plank",
+        "metadata": {},
+        "values": [0.6, 0.1]
+      },
+      {
+        "id": "Lunges",
+        "metadata": {},
+        "values": [0.7, 0.3]
+      },
+      {
+        "id": "Chest Fly",
+        "metadata": {},
+        "values": [0.2, 0.3]
+      },
+      {
+        "id": "Shoulder Press",
+        "metadata": {},
+        "values": [0.1, 0.6]
+      },
+      {
+        "id": "Lat Pulldown",
+        "metadata": {},
+        "values": [0.5, 0.6]
+      },
+      {
+        "id": "Tricep Dips",
+        "metadata": {},
+        "values": [0.3, 0.1]
+      },
+      {
+        "id": "Treadmill Running",
+        "metadata": {},
+        "values": [0.8, 0.1]
+      },
+      {
+        "id": "Cycling",
+        "metadata": {},
+        "values": [0.8, 0.1]
+      },
+      {
+        "id": "Jumping Jacks",
+        "metadata": {},
+        "values": [0.9, 0.1]
+      },
+      {
+        "id": "Burpees",
+        "metadata": {},
+        "values": [0.9, 0.1]
+      },
+      {
+        "id": "Elliptical Trainer",
+        "metadata": {},
+        "values": [0.8, 0.1]
+      },
+      {
+        "id": "Rowing Machine",
+        "metadata": {},
+        "values": [0.5, 0.1]
+      },
+      {
+        "id": "Barbell Row",
+        "metadata": {},
+        "values": [0.5, 0.7]
+      }
+    ],
+    "namespace": ""
+  }
+  

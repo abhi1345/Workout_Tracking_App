@@ -154,7 +154,7 @@ export const ExerciseScreen = ({ route, navigation }) => {
             <ScrollView style={{ backgroundColor: '#19162b' }}>
                 {sets.map((setReps, index) => (
                     <Swipeable key={index} renderRightActions={(progress, dragX) => renderRightAction(progress, dragX, index)}>
-                        <View style={styles.card}>
+                        <View style={styles.exerciseScreenSetCard}>
                             <Text style={styles.cardText}>
                                 Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs
                             </Text>
