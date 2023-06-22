@@ -116,6 +116,7 @@ const styles = StyleSheet.create({
     cardButtonText: {
         fontSize: 18,
         color: 'white',
+        fontFamily: 'SFUIDisplay-Light',
     },
     workoutLogItem: {
         backgroundColor: '#fff',
@@ -144,6 +145,7 @@ const styles = StyleSheet.create({
     saveWorkoutButtonText: {
         color: '#fff',
         fontSize: 18,
+        fontFamily: 'SFUIDisplay-Light',
     },
     container: {
         flex: 1,
@@ -172,11 +174,13 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 10,
         color: 'white',
+        fontFamily: 'SFUIDisplay-Light',
     },
     cardItem: {
         fontSize: 16,
         marginBottom: 5,
         color: 'white',
+        fontFamily: 'SFUIDisplay-Thin',
     },
     cardHeader: {
         flexDirection: 'row',
@@ -244,6 +248,7 @@ const styles = StyleSheet.create({
     timerText: {
         fontSize: 18,
         color: 'white',
+        fontFamily: 'SFUIDisplay-Light',
     },
     startWorkoutButtonDisabled: {
         backgroundColor: '#A0A0A0',

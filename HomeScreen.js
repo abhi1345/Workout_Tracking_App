@@ -344,7 +344,11 @@ export const HomeScreen = ({ navigation }) => {
                             keyExtractor={(item) => item.id}
                         />
                     </View>
-                    <CardButton title="Clear exercises" onPress={clearExercises} color="#fff" />
+                    <CardButton
+                        title="Clear exercises"
+                        onPress={clearExercises}
+                        color="#fff"
+                    />
                     <TouchableOpacity
                         style={[
                             styles.saveWorkoutButton,

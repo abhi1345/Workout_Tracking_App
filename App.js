@@ -127,6 +127,7 @@ function App() {
             },
             headerTitleStyle: {
               color: '#fff', // Set the text color for the header title
+              fontFamily: 'SFUIDisplay-Medium',
             },
           }} />
       </Tab.Navigator>
