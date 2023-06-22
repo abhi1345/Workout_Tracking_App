@@ -65,22 +65,22 @@ const Tab = createBottomTabNavigator();
 // SplashScreen.preventAutoHideAsync();
 
 function App() {
-  // const [fontsLoaded] = useFonts({
-  //   'SFUIDisplay-Heavy': require('./assets/fonts/SFUIDisplay-Heavy.otf'),
-  //   'SFUIDisplay-Thin': require('./assets/fonts/SFUIDisplay-Thin.otf'),
-  //   'SFUIDisplay-Black': require('./assets/fonts/SFUIDisplay-Black.otf'),
-  //   'SFUIDisplay-Bold': require('./assets/fonts/SFUIDisplay-Bold.otf'),
-  //   'SFUIDisplay-Light': require('./assets/fonts/SFUIDisplay-Light.otf'),
-  //   'SFUIDisplay-Medium': require('./assets/fonts/SFUIDisplay-Medium.otf'),
-  //   'SFUIDisplay-Semibold': require('./assets/fonts/SFUIDisplay-Semibold.otf'),
-  //   'SFUIDisplay-Ultralight': require('./assets/fonts/SFUIDisplay-Ultralight.otf'),
-  // });
+  const [fontsLoaded] = useFonts({
+    'SFUIDisplay-Heavy': require('./assets/fonts/SFUIDisplay-Heavy.otf'),
+    'SFUIDisplay-Thin': require('./assets/fonts/SFUIDisplay-Thin.otf'),
+    'SFUIDisplay-Black': require('./assets/fonts/SFUIDisplay-Black.otf'),
+    'SFUIDisplay-Bold': require('./assets/fonts/SFUIDisplay-Bold.otf'),
+    'SFUIDisplay-Light': require('./assets/fonts/SFUIDisplay-Light.otf'),
+    'SFUIDisplay-Medium': require('./assets/fonts/SFUIDisplay-Medium.otf'),
+    'SFUIDisplay-Semibold': require('./assets/fonts/SFUIDisplay-Semibold.otf'),
+    'SFUIDisplay-Ultralight': require('./assets/fonts/SFUIDisplay-Ultralight.otf'),
+  });
 
-  // const onLayoutRootView = useCallback(async () => {
-  //   if (fontsLoaded) {
-  //     await SplashScreen.hideAsync();
-  //   }
-  // }, [fontsLoaded]);
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
 
   return (
     <NavigationContainer style={styles.bottomNavBar}>

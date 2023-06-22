@@ -80,10 +80,10 @@ export const ExerciseScreen = ({ route, navigation }) => {
         });
         return (
             <TouchableOpacity onPress={() => deleteSet(index)}>
-                <View style={styles.deleteBox}>
+                <View style={styles.exerciseScreenDeleteBox}>
                     <Animated.Text
                         style={[
-                            styles.deleteText,
+                            styles.exerciseScreenDeleteText,
                             {
                                 transform: [{ scale }],
                             },
@@ -149,14 +149,48 @@ export const ExerciseScreen = ({ route, navigation }) => {
                 />
                 <Text style={styles.repSetText}>{exercise.type === 'Cardio' ? "Miles" : "LBS"}</Text>
             </View>
-            <Button title="Add Set" onPress={addSet} color="#9088eb" />
+
+            {/* <View style={{
+                backgroundColor: '#9088fb',
+                marginHorizontal: 150,
+                marginBottom: 20,
+                borderRadius: 10,
+            }}>
+                <Button
+                    title="Add Set"
+                    onPress={addSet}
+                    color="#fff"
+                />
+            </View> */}
+
+            <TouchableOpacity
+                style={{
+                    backgroundColor: '#9088fb',
+                    marginHorizontal: 150,
+                    marginBottom: 20,
+                    borderRadius: 10,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: 25,
+                }}
+                onPress={addSet}
+            >
+                <Text style={{ color: '#ffffff', fontSize: 12 }}>Add Set</Text>
+            </TouchableOpacity>
 
             <ScrollView style={{ backgroundColor: '#19162b' }}>
                 {sets.map((setReps, index) => (
-                    <Swipeable key={index} renderRightActions={(progress, dragX) => renderRightAction(progress, dragX, index)}>
-                        <View style={styles.exerciseScreenSetCard}>
+                    <Swipeable key={index}
+                        renderRightActions={(progress, dragX) => renderRightAction(progress, dragX, index)}
+                        style={[{ flex: 1 }]}
+                    >
+                        <View style={[styles.exerciseScreenSetCard, { flex: 1 }]}>
                             <Text style={styles.cardText}>
-                                Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs
+                                Set {index + 1}:
+                                {exercise.type === 'Cardio' ?
+                                    ` ${setReps[1]} Miles in ${setReps[0]} Minutes` :
+                                    ` ${setReps[0]} reps at ${setReps[1]} lbs`
+                                }
                             </Text>
                         </View>
                     </Swipeable>

@@ -8,6 +8,14 @@ const styles = StyleSheet.create({
         marginVertical: 10, // increased margin
         marginHorizontal: 10,
     },
+    exerciseScreenSetCard: {
+        paddingLeft: 10,
+        flex: 1,
+        borderColor: 'gray',
+        paddingBottom: 15,
+        backgroundColor: '#19162b',
+        borderRadius: 10,
+    },
     workoutLogCard: {
         backgroundColor: '#19162b',
         borderRadius: 5,
@@ -18,6 +26,8 @@ const styles = StyleSheet.create({
     cardText: {
         fontSize: 18,
         color: 'white',
+        fontFamily: 'SFUIDisplay-Light',
+        alignSelf: 'flex-start',
     },
     input: {
         borderColor: '#ccc',
@@ -96,6 +106,12 @@ const styles = StyleSheet.create({
         color: 'white',
         textAlignVertical: "center",
         textAlign: "center",
+    },
+    exerciseScreenDeleteText: {
+        color: 'white',
+        // textAlignVertical: "center",
+        textAlign: "center",
+        fontSize: 12,
     },
     cardButtonText: {
         fontSize: 18,
@@ -262,6 +278,17 @@ const styles = StyleSheet.create({
         padding: 30, // increased padding
         marginVertical: 10, // increased margin
         marginHorizontal: 10,
+    },
+    exerciseScreenDeleteBox: {
+        backgroundColor: 'red',
+        justifyContent: 'center',
+        // alignItems: 'flex-end',
+        width: 80,
+        borderRadius: 10,
+        padding: 10, // increased padding
+        marginVertical: 0, // increased margin
+        // marginLeft: 0,
+        marginRight: 10,
     },
     repSetText: {
         padding: 5,
