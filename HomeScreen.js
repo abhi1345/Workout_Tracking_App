@@ -394,7 +394,12 @@ const Card = ({ exercise, onPress, onDelete }) => {
                 <View style={{ marginTop: 5 }}>
                     {exercise.sets !== null && exercise.sets.map((setReps, index) => (
                         <Text key={index} style={{ color: 'gray' }} >
-                            Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs
+                            {/* Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs */}
+                            Set {index + 1}:
+                            {exercise.type === 'Cardio' ?
+                                ` ${setReps[1]} Miles in ${setReps[0]} Minutes` :
+                                ` ${setReps[0]} reps at ${setReps[1]} lbs`
+                            }
                         </Text>
                     ))}
                 </View>
