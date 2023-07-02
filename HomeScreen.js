@@ -50,7 +50,9 @@ export const HomeScreen = ({ navigation }) => {
             //     console.error(error);
             // }
 
-            const filtered = exerciseList.filter((item) => item.name.toLowerCase().includes(text.toLowerCase()));
+            const filtered = exerciseList
+                .filter((item) => item.name.toLowerCase().includes(text.toLowerCase()))
+                .slice(0, 5);;
             // const filtered = exerciseList.filter((item) => item.name.toLowerCase().includes(text.toLowerCase()) || semanticMatches.includes(item.name));
 
             console.log("New exlist", filtered);
@@ -320,8 +322,8 @@ export const HomeScreen = ({ navigation }) => {
                                 styles.dropdown,
                                 {
                                     minHeight: filteredExercises.length * 40,
-                                    maxHeight: 150,
                                     height: filteredExercises.length * 40,
+                                    maxHeight: filteredExercises.length * 40,
                                 },
                             ]}
                         />
