@@ -57,8 +57,28 @@ const styles = StyleSheet.create({
         backgroundColor: '#19162b',
         flex: 1,
     },
+    saveWorkoutButtonDisabled: {
+        backgroundColor: 'gray',
+        opacity: 0.5,
+        // Add any other desired styles for the disabled state
+    },
+    saveWorkoutButton: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        width: 370,
+        height: 55,
+        backgroundColor: '#9088eb',
+        borderRadius: 10,
+        padding: 15,
+        marginVertical: 10,
+        marginHorizontal: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     cardButton: {
-        backgroundColor: '#382c54',
+        backgroundColor: '#242240',
         borderRadius: 10,
         padding: 20,
         marginVertical: 10,
@@ -134,14 +154,6 @@ const styles = StyleSheet.create({
     workoutLogText: {
         fontSize: 16,
         marginBottom: 5,
-    },
-    saveWorkoutButton: {
-        backgroundColor: '#9088eb',
-        borderRadius: 10,
-        padding: 15,
-        alignItems: 'center',
-        justifyContent: 'center',
-        margin: 10,
     },
     saveWorkoutButtonText: {
         color: '#fff',
@@ -219,14 +231,13 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         marginRight: 103,
         borderRadius: 10,
-        // maxHeight: "30%",
-        // minHeight: "10%",
+        // minHeight: 40,
         borderWidth: 1,
         borderColor: 'grey',
         flex: 1,
     },
     startWorkoutButton: {
-        backgroundColor: '#382c54',
+        backgroundColor: '#242240',
         padding: 15,
         borderRadius: 10,
         alignItems: 'center',
@@ -236,8 +247,9 @@ const styles = StyleSheet.create({
     },
     startWorkoutButtonText: {
         color: '#ffffff',
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: 'bold',
+        fontFamily: 'SFUIDisplay-Light',
     },
     timerTextContainer: {
         fontSize: 24,
@@ -253,11 +265,6 @@ const styles = StyleSheet.create({
     },
     startWorkoutButtonDisabled: {
         backgroundColor: '#A0A0A0',
-    },
-    saveWorkoutButtonDisabled: {
-        backgroundColor: 'gray',
-        opacity: 0.5,
-        // Add any other desired styles for the disabled state
     },
     leftSwipeActions: {
         backgroundColor: 'blue',

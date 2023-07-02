@@ -48,7 +48,6 @@ export const ExerciseHistoryScreen = ({ route }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.historyTitle}>Exercise History</Text>
             <FlatList
                 data={exerciseHistory}
                 renderItem={({ item }) => (

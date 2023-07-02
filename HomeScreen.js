@@ -5,7 +5,9 @@ import Swipeable from 'react-native-gesture-handler/Swipeable';
 import * as SQLite from 'expo-sqlite';
 import { exerciseData } from './ExerciseList.js';
 import { createExerciseTable, insertExerciseData, checkExerciseTableAccurate } from './exerciseDB.js';
-import fetch from 'isomorphic-fetch';
+// import fetch from 'isomorphic-fetch';
+import { FontAwesome } from 'react-native-vector-icons';
+import { StatusBar } from 'react-native';
 import styles from './styles';
 
 const db = SQLite.openDatabase('workouts.db');
@@ -115,8 +117,6 @@ export const HomeScreen = ({ navigation }) => {
             name: exercise.name,
             type: exercise.type,
             sets: null,
-            reps: null,
-            weight: null,
         };
 
         if (exercise.name.trim() === '') {
@@ -201,6 +201,7 @@ export const HomeScreen = ({ navigation }) => {
         console.log("Updated exerciseInput: ", exerciseInput);
         console.log("Updated justAddedExerciseVar: ", justAddedExercise);
         console.log("Updated filteredExercises: ", filteredExercises);
+        console.log("Updated flen", filteredExercises.length);
         if (exerciseInput === '') {
             // perform an action
             setExerciseInput('');
@@ -261,6 +262,7 @@ export const HomeScreen = ({ navigation }) => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.container}
         >
+            <StatusBar barStyle="light-content" />
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}
             >
                 <SafeAreaView style={styles.safeArea}>
@@ -294,7 +296,7 @@ export const HomeScreen = ({ navigation }) => {
                         <CardButton
                             style={styles.addExerciseCardButton}
                             title="Add"
-                            color="#841584"
+                            color="#242240"
                             onPress={addExercise} />
                     </View>
                     {filteredExercises.length > 0 && (
@@ -317,9 +319,9 @@ export const HomeScreen = ({ navigation }) => {
                             style={[
                                 styles.dropdown,
                                 {
-                                    maxHeight: Math.min(filteredExercises.length * 40, 150),
+                                    minHeight: filteredExercises.length * 40,
+                                    maxHeight: 150,
                                     height: filteredExercises.length * 40,
-                                    minHeight: 40
                                 },
                             ]}
                         />
@@ -344,11 +346,15 @@ export const HomeScreen = ({ navigation }) => {
                             keyExtractor={(item) => item.id}
                         />
                     </View>
-                    <CardButton
+
+
+                    {/* <CardButton
                         title="Clear exercises"
                         onPress={clearExercises}
                         color="#fff"
-                    />
+                    /> */}
+
+
                     <TouchableOpacity
                         style={[
                             styles.saveWorkoutButton,
@@ -370,7 +376,7 @@ const Card = ({ exercise, onPress, onDelete }) => {
 
     const RightSwipeActions = () => {
         return (
-            <CardDeleteButton title="Delete" style={styles.cardDeleteButton} onPress={onDelete} />
+            <CardDeleteButton onPress={onDelete} />
         );
     };
 
@@ -416,10 +422,10 @@ const CardButton = ({ title, onPress }) => {
     );
 };
 
-const CardDeleteButton = ({ title, onPress }) => {
+const CardDeleteButton = ({ onPress }) => {
     return (
         <TouchableOpacity onPress={onPress} style={styles.cardDeleteButton}>
-            <Text style={styles.swipeActionText}>{title}</Text>
+            <FontAwesome name="trash" size={24} color="#ffffff" />
         </TouchableOpacity>
     );
 };

@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { HomeScreen } from './HomeScreen.js';
 import { ExerciseScreen } from './ExerciseScreen.js';
 import { WorkoutLogScreen } from './WorkoutLogScreen';
+import { YourProgramsScreen } from './YourProgramsScreen';
 import { ExerciseHistoryScreen } from './ExerciseHistoryScreen.js';
 import styles from './styles';
 import { useFonts } from 'expo-font';
@@ -34,6 +35,7 @@ function HomeStackNavigator({ navigation }) {
           title: 'Home', // Set the header title for the HomeScreen
           headerTitleStyle: {
             color: '#fff', // Set the text color for the header title
+            fontFamily: 'SFUIDisplay-Medium',
           },
         }}
       />
@@ -53,6 +55,10 @@ function HomeStackNavigator({ navigation }) {
         component={ExerciseHistoryScreen}
         options={{
           title: 'Exercise History', // Set the title for the ExerciseHistoryScreen
+          headerStyle: {
+            backgroundColor: '#19162b', // Set the background color of the header for the Exercise screen
+          },
+          headerTintColor: '#fff', // Set the text color for the header for the Exercise screen
         }}
       />
     </HomeStack.Navigator>
@@ -81,6 +87,10 @@ function App() {
       await SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null; // Render nothing until the fonts are loaded
+  }
 
   return (
     <NavigationContainer style={styles.bottomNavBar}>
@@ -130,6 +140,21 @@ function App() {
               fontFamily: 'SFUIDisplay-Medium',
             },
           }} />
+        {/* <Tab.Screen
+          name="Your Programs"
+          component={YourProgramsScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="calendar-outline" color={color} size={size} />
+            ),
+            headerStyle: {
+              backgroundColor: '#19162b', // Set the background color of the header for the "Workout Log" screen
+            },
+            headerTitleStyle: {
+              color: '#fff', // Set the text color for the header title
+              fontFamily: 'SFUIDisplay-Medium',
+            },
+          }} /> */}
       </Tab.Navigator>
     </NavigationContainer>
   );
