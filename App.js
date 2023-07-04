@@ -3,7 +3,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { insertExerciseData, createExerciseTable } from './exerciseDB';
 import { HomeScreen } from './HomeScreen.js';
 import { ExerciseScreen } from './ExerciseScreen.js';
 import { WorkoutLogScreen } from './WorkoutLogScreen';
@@ -71,6 +73,48 @@ const Tab = createBottomTabNavigator();
 // SplashScreen.preventAutoHideAsync();
 
 function App() {
+
+  // Load the exercise data from Firebase at the start of the app
+  React.useEffect(() => {
+    console.log("useEffect is running");
+    const loadExercises = async () => {
+      console.log("loadExercises function is running");
+      // Fetch the last updated time from AsyncStorage
+      const lastUpdated = await AsyncStorage.getItem('lastUpdated');
+      const now = Date.now();
+
+      // Check if an hour has passed since last update
+      if (true || !lastUpdated || now - lastUpdated >= 60 * 60 * 1000) {
+        // Fetch data from firebase
+        const url = `https://lift-logger-alpha-default-rtdb.firebaseio.com/exercises.json`;
+        const response = await fetch(url);
+        const data = await response.text(); // Extract response as text
+        const jsonData = JSON.parse(data); // Parse JSON string
+        console.log("p1", jsonData[0]);
+
+        // Create table in local db and insert data
+        createExerciseTable()
+          .then(() => {
+            console.log('Table created, inserting data');
+            return insertExerciseData(jsonData);
+          })
+          .then(() => {
+            console.log('Data inserted, updating last updated time');
+            return AsyncStorage.setItem('lastUpdated', String(now));
+          })
+          .then(() => {
+            console.log('Last updated time saved');
+          })
+          .catch((error) => {
+            console.error('Error during database update:', error);
+          });
+      }
+    };
+
+    loadExercises();
+  }, []);  // Run once when the app starts
+
+
   const [fontsLoaded] = useFonts({
     'SFUIDisplay-Heavy': require('./assets/fonts/SFUIDisplay-Heavy.otf'),
     'SFUIDisplay-Thin': require('./assets/fonts/SFUIDisplay-Thin.otf'),

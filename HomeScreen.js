@@ -8,9 +8,24 @@ import { createExerciseTable, insertExerciseData, checkExerciseTableAccurate } f
 // import fetch from 'isomorphic-fetch';
 import { FontAwesome } from 'react-native-vector-icons';
 import { StatusBar } from 'react-native';
+import 'react-native-url-polyfill/auto';
+import { createClient } from '@supabase/supabase-js';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from './styles';
 
 const db = SQLite.openDatabase('workouts.db');
+
+console.log("made it past imports");
+const supabaseUrl = 'https://mvxzzlpznfutepjuqbrx.supabase.co'
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im12eHp6bHB6bmZ1dGVwanVxYnJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODg0NTI2MDksImV4cCI6MjAwNDAyODYwOX0.uD4ANRSC2LKE7vkcKarplw5qtEEGToE9hJFdcVb1QWQ"
+const supabase = createClient(supabaseUrl, supabaseKey, {
+    auth: {
+        storage: AsyncStorage,
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: false,
+    },
+});
 
 export const HomeScreen = ({ navigation }) => {
 
@@ -24,6 +39,7 @@ export const HomeScreen = ({ navigation }) => {
     const [workoutStartTime, setWorkoutStartTime] = useState(null);
     const [elapsedTime, setElapsedTime] = useState(0);
     const [timerVisible, setTimerVisible] = useState(false);
+    const [exercisesLoaded, setExercisesLoaded] = useState(false);
 
     const [exerciseList, setExerciseList] = useState([]);
     const [justAddedExercise, setJustAddedExercise] = useState(false);
@@ -31,24 +47,34 @@ export const HomeScreen = ({ navigation }) => {
 
     const HARDCREATEEXERCISES = true;
 
+    async function signInWithEmail() {
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: 'sh_abhi@ymail.com',
+            password: 'nuliajukHORKU3058',
+        })
+    }
+
     const filterExercises = async (text) => {
         if (text === '') {
             setFilteredExercises([]);
         } else {
-            // const semanticMatches = [];
-            // try {
-            //     const url = `http://localhost:5003/?name=${text}`;
-            //     const response = await fetch(url);
-            //     const data = await response.text(); // Extract response as text
-            //     const jsonData = JSON.parse(data); // Parse JSON string
+            const firebaseMatches = [];
+            try {
+                // const url = `https://lift-logger-alpha-default-rtdb.firebaseio.com/exercises.json`;
+                // const response = await fetch(url);
+                // const data = await response.text(); // Extract response as text
+                // const jsonData = JSON.parse(data); // Parse JSON string
+                // console.log("p1", jsonData[0]);
 
-            //     for (let i = 0; i < jsonData.matches.length; i++) {
-            //         semanticMatches.push(jsonData.matches[i]["id"]);
-            //     }
+                // for (let i = 0; i < jsonData.length; i++) {
+                //     firebaseMatches.push(jsonData[i]["name"]);
+                // }
 
-            // } catch (error) {
-            //     console.error(error);
-            // }
+                // console.log("Fetched firebase db matches", firebaseMatches);
+
+            } catch (error) {
+                console.error(error);
+            }
 
             const filtered = exerciseList
                 .filter((item) => item.name.toLowerCase().includes(text.toLowerCase()))
@@ -199,28 +225,16 @@ export const HomeScreen = ({ navigation }) => {
         setTimerVisible(false);
     };
 
-    useEffect(() => {
-        console.log("Updated exerciseInput: ", exerciseInput);
-        console.log("Updated justAddedExerciseVar: ", justAddedExercise);
-        console.log("Updated filteredExercises: ", filteredExercises);
-        console.log("Updated flen", filteredExercises.length);
-        if (exerciseInput === '') {
-            // perform an action
-            setExerciseInput('');
-        }
-    }, [exerciseInput, justAddedExercise, filteredExercises]);
-
 
     useEffect(() => {
-        let intervalId;
-
+        console.log("DB UseEffec running");
         const checkAndLoadExercises = async () => {
             try {
                 await checkExerciseTableAccurate((exercisesUpToDate) => {
-                    if (!exercisesUpToDate || HARDCREATEEXERCISES) {
-                        createExerciseTable();
-                        insertExerciseData(exerciseData);
-                    }
+                    // if (!exercisesUpToDate || HARDCREATEEXERCISES) {
+                    //     createExerciseTable();
+                    //     insertExerciseData(exerciseData);
+                    // }
 
                     // Once you're sure the table exists and has data, retrieve it.
                     db.transaction(tx => {
@@ -245,8 +259,68 @@ export const HomeScreen = ({ navigation }) => {
                 console.error('Error checking/creating exercises table:', error);
             }
         };
+        // Run the function immediately
+        if (!exercisesLoaded) {
+            checkAndLoadExercises();
+            setExercisesLoaded(true);
+        }
+        
+    }, [exerciseInput]);
 
-        checkAndLoadExercises();
+    useEffect(() => {
+        console.log("Updated exerciseInput: ", exerciseInput);
+        console.log("Updated justAddedExerciseVar: ", justAddedExercise);
+        console.log("Updated filteredExercises: ", filteredExercises);
+        console.log("Updated flen", filteredExercises.length);
+        if (exerciseInput === '') {
+            // perform an action
+            setExerciseInput('');
+        }
+    }, [exerciseInput, justAddedExercise, filteredExercises]);
+
+    // useEffect(() => {
+    //     let intervalId;
+
+    //     const loadExercises = async () => {
+    //         // Read data from Firebase Realtime Database
+    //         const ref = database().ref('/exercises');
+    //         ref.on('value', (snapshot) => {
+    //             let data = [];
+    //             snapshot.forEach((child) => {
+    //                 data.push({
+    //                     name: child.val().name,
+    //                     type: child.val().type,
+    //                     equipment: child.val().equipment,
+    //                     primary_muscle: child.val().primary_muscle
+    //                 });
+    //             });
+    //             console.log("fetched from firebase", data);
+    //             setExerciseList(data);
+    //         }, (error) => {
+    //             console.error('Error retrieving exercise data:', error);
+    //         });
+    //     };
+
+    //     loadExercises();
+    //     console.log("ran load exercises");
+
+    //     if (timerVisible) {
+    //         intervalId = setInterval(() => {
+    //             setElapsedTime(Math.floor((new Date() - workoutStartTime) / 1000));
+    //         }, 1000);
+    //     }
+
+    //     return () => {
+    //         clearInterval(intervalId);
+    //     };
+    // }, [timerVisible, workoutStartTime]);    
+
+
+    useEffect(() => {
+        let intervalId;
+
+        console.log("logging in");
+        // signInWithEmail();
 
         if (timerVisible) {
             intervalId = setInterval(() => {

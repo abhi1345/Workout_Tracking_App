@@ -9,41 +9,59 @@ const db = SQLite.openDatabase('workouts.db');
 
 
 export const createExerciseTable = () => {
-    db.transaction((tx) => {
-        // delete the existing table
-        tx.executeSql(
-            'DROP TABLE IF EXISTS exercises;',
-            [],
-            () => {
-                console.log('exercises table dropped successfully');
-                // create a new table
-                tx.executeSql(
-                    'CREATE TABLE exercises (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, type TEXT, equipment TEXT, primary_muscle TEXT);',
-                    [],
-                    () => console.log('exercises table created successfully'),
-                    (_, error) => console.error('Error creating exercise table:', error)
-                );
-            },
-            (_, error) => console.error('Error dropping exercise table:', error)
-        );
-    });
-};
-
-
-export const insertExerciseData = (exerciseData) => {
-    exerciseData.forEach((exercise) => {
-        const { name, type, equipment, primary_muscle } = exercise;
-
+    return new Promise((resolve, reject) => {
         db.transaction((tx) => {
+            // delete the existing table
             tx.executeSql(
-                'INSERT INTO exercises (name, type, equipment, primary_muscle) VALUES (?, ?, ?, ?)',
-                [name, type, equipment, primary_muscle],
-                () => console.log('Inserted exercise data successfully for', exercise),
-                (_, error) => console.error('Error inserting exercise data:', error)
+                'DROP TABLE IF EXISTS exercises;',
+                [],
+                () => {
+                    // create a new table
+                    tx.executeSql(
+                        'CREATE TABLE exercises (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, type TEXT, equipment TEXT, primary_muscle TEXT);',
+                        [],
+                        () => {
+                            console.log('exercises table created successfully');
+                            resolve();
+                        },
+                        (_, error) => {
+                            console.error('Error creating exercise table:', error);
+                            reject(error);
+                        }
+                    );
+                },
+                (_, error) => {
+                    console.error('Error dropping exercise table:', error);
+                    reject(error);
+                }
             );
         });
     });
 };
+
+export const insertExerciseData = (exerciseData) => {
+    return new Promise((resolve, reject) => {
+        exerciseData.forEach((exercise) => {
+            const { name, type, equipment, primary_muscle } = exercise;
+
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'INSERT INTO exercises (name, type, equipment, primary_muscle) VALUES (?, ?, ?, ?)',
+                    [name, type, equipment, primary_muscle],
+                    () => {
+                        console.log('Inserted exercise data successfully for', exercise);
+                        resolve();
+                    },
+                    (_, error) => {
+                        console.error('Error inserting exercise data:', error);
+                        reject(error);
+                    }
+                );
+            });
+        });
+    });
+};
+
 
 export const checkExerciseTableAccurate = (callback) => {
     db.transaction((tx) => {
