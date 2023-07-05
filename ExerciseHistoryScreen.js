@@ -11,6 +11,7 @@ export const ExerciseHistoryScreen = ({ route }) => {
     const [exerciseHistory, setExerciseHistory] = useState([]);
 
     useEffect(() => {
+        console.log("retrieving workout history for ", exerciseName);
         db.transaction((tx) => {
             tx.executeSql(
                 'SELECT * FROM workouts ORDER BY date DESC',
@@ -30,7 +31,7 @@ export const ExerciseHistoryScreen = ({ route }) => {
                             if (foundExercise && foundExercise.sets && foundExercise.sets.length > 0) {
                                 history.push({
                                     workoutId: workout.id,
-                                    date: workoutDate,
+                                    date: workout.date,
                                     sets: foundExercise.sets,
                                 });
                             }
@@ -54,7 +55,7 @@ export const ExerciseHistoryScreen = ({ route }) => {
                     <View style={styles.historyItem}>
                         <Text style={styles.historyDate}>{isoDateToLocale(item.date)}:</Text>
                         {item.sets && item.sets.map((setReps, index) => (
-                            <Text key={index}>
+                            <Text key={index} style={styles.historySet}>
                                 Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs
                             </Text>
                         ))}

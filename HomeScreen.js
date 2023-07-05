@@ -15,7 +15,6 @@ import styles from './styles';
 
 const db = SQLite.openDatabase('workouts.db');
 
-console.log("made it past imports");
 const supabaseUrl = 'https://mvxzzlpznfutepjuqbrx.supabase.co'
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im12eHp6bHB6bmZ1dGVwanVxYnJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODg0NTI2MDksImV4cCI6MjAwNDAyODYwOX0.uD4ANRSC2LKE7vkcKarplw5qtEEGToE9hJFdcVb1QWQ"
 const supabase = createClient(supabaseUrl, supabaseKey, {
@@ -81,7 +80,7 @@ export const HomeScreen = ({ navigation }) => {
                 .slice(0, 5);;
             // const filtered = exerciseList.filter((item) => item.name.toLowerCase().includes(text.toLowerCase()) || semanticMatches.includes(item.name));
 
-            console.log("New exlist", filtered);
+            console.log("New filtered exercise list:", filtered);
             setFilteredExercises(filtered);
         }
     };
@@ -93,13 +92,11 @@ export const HomeScreen = ({ navigation }) => {
 
     const handleInputChange = (text) => {
         setExerciseInput(text);
-        console.log("change in handleInputChange");
         if (justAddedExercise) {
             setFilteredExercises([]);
         } else {
             filterExercises(text);
         }
-        console.log("exercise var", justAddedExercise);
     };
 
     const startWorkout = () => {
@@ -133,7 +130,7 @@ export const HomeScreen = ({ navigation }) => {
     };
 
     const removeExercise = (exerciseId) => {
-        console.log("removing exercise from workout", exerciseId,
+        console.log("Removing exercise from workout", exerciseId,
             workout.find((exercise) => exercise.id !== exerciseId));
         const updatedWorkout = workout.filter((exercise) => exercise.id !== exerciseId);
         setWorkout(updatedWorkout);
@@ -155,7 +152,6 @@ export const HomeScreen = ({ navigation }) => {
         setWorkout((prevWorkout) => [...prevWorkout, newExercise]);
         setExerciseInput('');
         setFilteredExercises([]);
-        console.log("this is ei", exerciseInput);
         setNumExercises(numExercises + 1);
         setJustAddedExercise(true);
     };
@@ -227,7 +223,6 @@ export const HomeScreen = ({ navigation }) => {
 
 
     useEffect(() => {
-        console.log("DB UseEffec running");
         const checkAndLoadExercises = async () => {
             try {
                 await checkExerciseTableAccurate((exercisesUpToDate) => {
@@ -264,14 +259,10 @@ export const HomeScreen = ({ navigation }) => {
             checkAndLoadExercises();
             setExercisesLoaded(true);
         }
-        
+
     }, [exerciseInput]);
 
     useEffect(() => {
-        console.log("Updated exerciseInput: ", exerciseInput);
-        console.log("Updated justAddedExerciseVar: ", justAddedExercise);
-        console.log("Updated filteredExercises: ", filteredExercises);
-        console.log("Updated flen", filteredExercises.length);
         if (exerciseInput === '') {
             // perform an action
             setExerciseInput('');
@@ -318,9 +309,6 @@ export const HomeScreen = ({ navigation }) => {
 
     useEffect(() => {
         let intervalId;
-
-        console.log("logging in");
-        // signInWithEmail();
 
         if (timerVisible) {
             intervalId = setInterval(() => {
@@ -403,7 +391,7 @@ export const HomeScreen = ({ navigation }) => {
                         />
                     )}
 
-                    <View style={{ maxHeight: "50%", flex: 1, flexGrow: 1 }}>
+                    <View style={{ flex: 1, flexGrow: 1, paddingBottom: 75 }}>
                         <FlatList
                             data={workout}
                             renderItem={({ item }) => (
@@ -423,18 +411,11 @@ export const HomeScreen = ({ navigation }) => {
                         />
                     </View>
 
-
-                    {/* <CardButton
-                        title="Clear exercises"
-                        onPress={clearExercises}
-                        color="#fff"
-                    /> */}
-
-
                     <TouchableOpacity
                         style={[
                             styles.saveWorkoutButton,
                             !timerRunning ? styles.saveWorkoutButtonDisabled : null,
+                            {flex: 1},
                         ]}
                         onPress={!timerRunning ? null : saveWorkout}
                     >

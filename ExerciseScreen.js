@@ -119,7 +119,7 @@ export const ExerciseScreen = ({ route, navigation }) => {
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <View style={styles.inputContainer}>
+            <View style={styles.exerciseScreenInputContainer}>
                 <TextInput
                     ref={firstInputRef}
                     placeholder={exercise.type === 'Cardio' ? "Add Minutes" : "Add Reps"}
@@ -147,7 +147,25 @@ export const ExerciseScreen = ({ route, navigation }) => {
                     keyboardType="decimal-pad"
                     style={styles.setRepInput}
                 />
-                <Text style={styles.repSetText}>{exercise.type === 'Cardio' ? "Miles" : "LBS"}</Text>
+                <Text style={styles.repSetText}>{exercise.type === 'Cardio' ? "Miles" : "Lbs"}</Text>
+
+                <TouchableOpacity
+                    style={{
+                        backgroundColor: '#9088fb',
+                        marginRight: 10,
+                        marginVertical: 20,
+                        borderRadius: 10,
+                        padding: 7,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: 30,
+                        width: 70,
+                    }}
+                    onPress={addSet}
+                >
+                    <Text style={{ color: '#ffffff', fontSize: 12 }}>Add Set</Text>
+                </TouchableOpacity>
+
             </View>
 
             {/* <View style={{
@@ -163,20 +181,7 @@ export const ExerciseScreen = ({ route, navigation }) => {
                 />
             </View> */}
 
-            <TouchableOpacity
-                style={{
-                    backgroundColor: '#9088fb',
-                    marginHorizontal: 150,
-                    marginBottom: 20,
-                    borderRadius: 10,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: 25,
-                }}
-                onPress={addSet}
-            >
-                <Text style={{ color: '#ffffff', fontSize: 12 }}>Add Set</Text>
-            </TouchableOpacity>
+
 
             <ScrollView style={{ backgroundColor: '#19162b' }}>
                 {sets.map((setReps, index) => (

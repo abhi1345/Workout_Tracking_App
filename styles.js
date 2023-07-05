@@ -3,13 +3,15 @@ import { StyleSheet } from 'react-native';
 const styles = StyleSheet.create({
     card: {
         backgroundColor: '#19162b',
-        borderRadius: 20,
-        padding: 30, // increased padding
+        borderRadius: 10,
+        padding: 20, // increased padding
         marginVertical: 10, // increased margin
         marginHorizontal: 10,
+        borderColor: 'gray',
+        borderWidth: 1,
     },
     exerciseScreenSetCard: {
-        paddingLeft: 10,
+        paddingLeft: 30,
         flex: 1,
         borderColor: 'gray',
         paddingBottom: 15,
@@ -45,7 +47,7 @@ const styles = StyleSheet.create({
         borderColor: '#ccc',
         borderWidth: 1,
         borderRadius: 10,
-        padding: 20,
+        padding: 10,
         marginVertical: 20,
         marginHorizontal: 10,
         flex: 1,
@@ -176,6 +178,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         backgroundColor: '#19162b',
+    },
+    exerciseScreenInputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: '#19162b',
+        paddingLeft: 20,
     },
     workoutItem: {
         padding: 15,
@@ -318,7 +327,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     historyItem: {
-        backgroundColor: '#f0f0f0',
+        backgroundColor: '#19162b',
         borderRadius: 5,
         padding: 10,
         marginBottom: 10,
@@ -327,6 +336,15 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         marginBottom: 5,
+        color: '#ccc',
+        fontFamily: 'SFUIDisplay-Light',
+    },
+    historySet: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        marginBottom: 5,
+        color: '#ccc',
+        fontFamily: 'SFUIDisplay-Light',
     },
 });
 
