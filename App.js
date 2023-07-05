@@ -9,7 +9,6 @@ import { insertExerciseData, createExerciseTable } from './exerciseDB';
 import { HomeScreen } from './HomeScreen.js';
 import { ExerciseScreen } from './ExerciseScreen.js';
 import { WorkoutLogScreen } from './WorkoutLogScreen';
-import { YourProgramsScreen } from './YourProgramsScreen';
 import { ExerciseHistoryScreen } from './ExerciseHistoryScreen.js';
 import styles from './styles';
 import { useFonts } from 'expo-font';
@@ -86,11 +85,11 @@ function App() {
       // Check if an hour has passed since last update
       if (true || !lastUpdated || now - lastUpdated >= 60 * 60 * 1000) {
         // Fetch data from firebase
-        const url = `https://lift-logger-alpha-default-rtdb.firebaseio.com/exercises.json`;
-        const response = await fetch(url);
-        const data = await response.text(); // Extract response as text
-        const jsonData = JSON.parse(data); // Parse JSON string
-        console.log("p1", jsonData[0]);
+        // const url = `https://lift-logger-alpha-default-rtdb.firebaseio.com/exercises.json`;
+        // const response = await fetch(url);
+        // const data = await response.text(); // Extract response as text
+        // const jsonData = JSON.parse(data); // Parse JSON string
+        // console.log("p1", jsonData[0]);
 
         // Create table in local db and insert data
         createExerciseTable()

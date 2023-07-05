@@ -9,22 +9,10 @@ import { createExerciseTable, insertExerciseData, checkExerciseTableAccurate } f
 import { FontAwesome } from 'react-native-vector-icons';
 import { StatusBar } from 'react-native';
 import 'react-native-url-polyfill/auto';
-import { createClient } from '@supabase/supabase-js';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from './styles';
 
 const db = SQLite.openDatabase('workouts.db');
-
-const supabaseUrl = 'https://mvxzzlpznfutepjuqbrx.supabase.co'
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im12eHp6bHB6bmZ1dGVwanVxYnJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODg0NTI2MDksImV4cCI6MjAwNDAyODYwOX0.uD4ANRSC2LKE7vkcKarplw5qtEEGToE9hJFdcVb1QWQ"
-const supabase = createClient(supabaseUrl, supabaseKey, {
-    auth: {
-        storage: AsyncStorage,
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: false,
-    },
-});
 
 export const HomeScreen = ({ navigation }) => {
 
