@@ -75,7 +75,6 @@ function App() {
 
   // Load the exercise data from Firebase at the start of the app
   React.useEffect(() => {
-    console.log("useEffect is running");
     const loadExercises = async () => {
       console.log("loadExercises function is running");
       // Fetch the last updated time from AsyncStorage
@@ -89,7 +88,7 @@ function App() {
         const response = await fetch(url);
         const data = await response.text(); // Extract response as text
         const jsonData = JSON.parse(data); // Parse JSON string
-        console.log("p1", jsonData[0]);
+        console.log("Pulled exercise data from firebase db");
 
         // Create table in local db and insert data
         createExerciseTable()
