@@ -5,7 +5,6 @@ import Swipeable from 'react-native-gesture-handler/Swipeable';
 import * as SQLite from 'expo-sqlite';
 import { exerciseData } from './ExerciseList.js';
 import { createExerciseTable, insertExerciseData, checkExerciseTableAccurate } from './exerciseDB.js';
-// import fetch from 'isomorphic-fetch';
 import { FontAwesome } from 'react-native-vector-icons';
 import { StatusBar } from 'react-native';
 import 'react-native-url-polyfill/auto';
@@ -14,7 +13,7 @@ import styles from './styles';
 
 const db = SQLite.openDatabase('workouts.db');
 
-export const HomeScreen = ({ navigation }) => {
+export const HomeScreen = ({ navigation, fetchedData }) => {
 
     const [workout, setWorkout] = useState([]);
     const [numExercises, setNumExercises] = useState(0);
@@ -34,45 +33,18 @@ export const HomeScreen = ({ navigation }) => {
 
     const HARDCREATEEXERCISES = true;
 
-    async function signInWithEmail() {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: 'sh_abhi@ymail.com',
-            password: 'nuliajukHORKU3058',
-        })
-    }
-
     const filterExercises = async (text) => {
         if (text === '') {
             setFilteredExercises([]);
         } else {
-            const firebaseMatches = [];
-            try {
-                // const url = `https://lift-logger-alpha-default-rtdb.firebaseio.com/exercises.json`;
-                // const response = await fetch(url);
-                // const data = await response.text(); // Extract response as text
-                // const jsonData = JSON.parse(data); // Parse JSON string
-                // console.log("p1", jsonData[0]);
-
-                // for (let i = 0; i < jsonData.length; i++) {
-                //     firebaseMatches.push(jsonData[i]["name"]);
-                // }
-
-                // console.log("Fetched firebase db matches", firebaseMatches);
-
-            } catch (error) {
-                console.error(error);
-            }
-
             const filtered = exerciseList
                 .filter((item) => item.name.toLowerCase().includes(text.toLowerCase()))
                 .slice(0, 5);;
-            // const filtered = exerciseList.filter((item) => item.name.toLowerCase().includes(text.toLowerCase()) || semanticMatches.includes(item.name));
 
             console.log("New filtered exercise list:", filtered);
             setFilteredExercises(filtered);
         }
     };
-
 
     const modifyWorkout = (newWorkout) => {
         setWorkout(newWorkout);
@@ -211,6 +183,7 @@ export const HomeScreen = ({ navigation }) => {
 
 
     useEffect(() => {
+        console.log("Checking local exercises table for discrepancies", exercisesLoaded);
         const checkAndLoadExercises = async () => {
             try {
                 await checkExerciseTableAccurate((exercisesUpToDate) => {
@@ -220,6 +193,7 @@ export const HomeScreen = ({ navigation }) => {
                     // }
 
                     // Once you're sure the table exists and has data, retrieve it.
+                    console.log("updating exercise list from local sqlite db");
                     db.transaction(tx => {
                         tx.executeSql(
                             'SELECT name, type FROM exercises',
@@ -241,14 +215,24 @@ export const HomeScreen = ({ navigation }) => {
             } catch (error) {
                 console.error('Error checking/creating exercises table:', error);
             }
+            console.log("Ran check and Load exercises");
         };
         // Run the function immediately
+
+        console.log("fecthedDate1", fetchedData);
         if (!exercisesLoaded) {
+            console.log("fecthedDate2", fetchedData);
             checkAndLoadExercises();
             setExercisesLoaded(true);
         }
 
+        console.log("exerises lists", exerciseList);
+
     }, [exerciseInput]);
+
+    useEffect(() => {
+        console.log("Changed exercise list", exerciseList);
+    }, [exerciseList]);
 
     useEffect(() => {
         if (exerciseInput === '') {

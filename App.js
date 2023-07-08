@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -16,7 +16,7 @@ import * as SplashScreen from 'expo-splash-screen';
 
 const HomeStack = createStackNavigator();
 
-function HomeStackNavigator({ navigation }) {
+function HomeStackNavigator({ navigation, fetchedData }) {
   return (
     <HomeStack.Navigator
       screenOptions={{
@@ -73,6 +73,9 @@ const Tab = createBottomTabNavigator();
 
 function App() {
 
+  const [fetchedData, setFetchedData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true); // Add this line
+
   // Load the exercise data from Firebase at the start of the app
   React.useEffect(() => {
     const loadExercises = async () => {
@@ -98,12 +101,16 @@ function App() {
           })
           .then(() => {
             console.log('Data inserted, updating last updated time');
+            setFetchedData(jsonData);
+            console.log("We have fetched data", fetchedData);
+            setIsLoading(false);
             return AsyncStorage.setItem('lastUpdated', String(now));
           })
           .then(() => {
             console.log('Last updated time saved');
           })
           .catch((error) => {
+            setIsLoading(false);
             console.error('Error during database update:', error);
           });
       }
@@ -130,8 +137,8 @@ function App() {
     }
   }, [fontsLoaded]);
 
-  if (!fontsLoaded) {
-    return null; // Render nothing until the fonts are loaded
+  if (isLoading || !fontsLoaded) {
+    return null; // Render nothing until the fonts+exercises are loaded
   }
 
   return (
@@ -159,7 +166,8 @@ function App() {
       >
         <Tab.Screen
           name="Your Workout"
-          component={HomeStackNavigator}
+          // Pass the fetched data to your HomeStackNavigator as a prop
+          children={() => <HomeStackNavigator fetchedData={fetchedData} />}
           style={styles.bottomNavBar}
           options={{
             tabBarIcon: ({ color, size }) => (

@@ -16,14 +16,12 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "versionCode": "1.0.0",
       "bundleIdentifier": "com.FitFlow.MainApp"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff",
-        "buildNumber": "1.0.0"
       }
     },
     "web": {
