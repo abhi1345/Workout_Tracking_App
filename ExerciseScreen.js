@@ -1,11 +1,10 @@
 import React, { useState, useRef, useLayoutEffect } from 'react';
 import {
-    Button, SafeAreaView, TextInput, View, Text, FlatList, ScrollView, TouchableOpacity, Animated
+    Button, SafeAreaView, TextInput, View, Text, FlatList, ScrollView, TouchableOpacity, Animated, TouchableWithoutFeedback, Keyboard
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Swipeable } from 'react-native-gesture-handler';
 import * as SQLite from 'expo-sqlite';
-
 import styles from './styles';
 
 const db = SQLite.openDatabase('workouts.db');
@@ -16,6 +15,7 @@ export const ExerciseScreen = ({ route, navigation }) => {
     const [sets, setSets] = useState(() => exercise.sets || []);
     const [reps, setReps] = useState(() => exercise.reps || '');
     const [weight, setWeight] = useState(() => exercise.weight || '');
+    const swipeableRefs = useRef([]);
 
 
     const addSet = () => {
@@ -68,6 +68,7 @@ export const ExerciseScreen = ({ route, navigation }) => {
             });
 
             route.params.modifyWorkout(updatedWorkout);
+            swipeableRefs.current[index].close();
             return newSets;
         });
     };
@@ -118,57 +119,59 @@ export const ExerciseScreen = ({ route, navigation }) => {
     const secondInputRef = useRef(null);
 
     return (
-        <SafeAreaView style={styles.safeArea}>
-            <View style={styles.exerciseScreenInputContainer}>
-                <TextInput
-                    ref={firstInputRef}
-                    placeholder={exercise.type === 'Cardio' ? "Add Minutes" : "Add Reps"}
-                    placeholderTextColor="gray"
-                    onChangeText={(text) => {
-                        setReps(text);
-                        if (text.length == 1 && parseInt(text) > 3
-                            || text.length >= 2) { // Replace 2 with your desired limit
-                            secondInputRef.current.focus();
-                        }
-                    }}
-                    value={reps}
-                    keyboardType="number-pad"
-                    style={styles.setRepInput}
-                    maxLength={2} // Add this line
-                />
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}
+        >
+            <SafeAreaView style={styles.safeArea}>
+                <View style={styles.exerciseScreenInputContainer}>
+                    <TextInput
+                        ref={firstInputRef}
+                        placeholder={exercise.type === 'Cardio' ? "Add Minutes" : "Add Reps"}
+                        placeholderTextColor="gray"
+                        onChangeText={(text) => {
+                            setReps(text);
+                            if (text.length == 1 && parseInt(text) > 3
+                                || text.length >= 2) { // Replace 2 with your desired limit
+                                secondInputRef.current.focus();
+                            }
+                        }}
+                        value={reps}
+                        keyboardType="number-pad"
+                        style={styles.setRepInput}
+                        maxLength={2} // Add this line
+                    />
 
-                <Text style={styles.repSetText}>{exercise.type === 'Cardio' ? "Minutes" : "Reps"}</Text>
-                <TextInput
-                    ref={secondInputRef}
-                    placeholder={exercise.type === 'Cardio' ? "Add Miles" : "Add Weight"}
-                    placeholderTextColor="gray"
-                    onChangeText={setWeight}
-                    value={weight}
-                    keyboardType="decimal-pad"
-                    style={styles.setRepInput}
-                />
-                <Text style={styles.repSetText}>{exercise.type === 'Cardio' ? "Miles" : "Lbs"}</Text>
+                    <Text style={styles.repSetText}>{exercise.type === 'Cardio' ? "Minutes" : "Reps"}</Text>
+                    <TextInput
+                        ref={secondInputRef}
+                        placeholder={exercise.type === 'Cardio' ? "Add Miles" : "Add Weight"}
+                        placeholderTextColor="gray"
+                        onChangeText={setWeight}
+                        value={weight}
+                        keyboardType="decimal-pad"
+                        style={styles.setRepInput}
+                    />
+                    <Text style={styles.repSetText}>{exercise.type === 'Cardio' ? "Miles" : "Lbs"}</Text>
 
-                <TouchableOpacity
-                    style={{
-                        backgroundColor: '#9088fb',
-                        marginRight: 10,
-                        marginVertical: 20,
-                        borderRadius: 10,
-                        padding: 7,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        height: 30,
-                        width: 70,
-                    }}
-                    onPress={addSet}
-                >
-                    <Text style={{ color: '#ffffff', fontSize: 12 }}>Add Set</Text>
-                </TouchableOpacity>
+                    <TouchableOpacity
+                        style={{
+                            backgroundColor: '#9088fb',
+                            marginRight: 10,
+                            marginVertical: 20,
+                            borderRadius: 10,
+                            padding: 7,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            height: 30,
+                            width: 70,
+                        }}
+                        onPress={addSet}
+                    >
+                        <Text style={{ color: '#ffffff', fontSize: 12 }}>Add Set</Text>
+                    </TouchableOpacity>
 
-            </View>
+                </View>
 
-            {/* <View style={{
+                {/* <View style={{
                 backgroundColor: '#9088fb',
                 marginHorizontal: 150,
                 marginBottom: 20,
@@ -183,24 +186,26 @@ export const ExerciseScreen = ({ route, navigation }) => {
 
 
 
-            <ScrollView style={{ backgroundColor: '#19162b' }}>
-                {sets.map((setReps, index) => (
-                    <Swipeable key={index}
-                        renderRightActions={(progress, dragX) => renderRightAction(progress, dragX, index)}
-                        style={[{ flex: 1 }]}
-                    >
-                        <View style={[styles.exerciseScreenSetCard, { flex: 1 }]}>
-                            <Text style={styles.cardText}>
-                                Set {index + 1}:
-                                {exercise.type === 'Cardio' ?
-                                    ` ${setReps[1]} Miles in ${setReps[0]} Minutes` :
-                                    ` ${setReps[0]} reps at ${setReps[1]} lbs`
-                                }
-                            </Text>
-                        </View>
-                    </Swipeable>
-                ))}
-            </ScrollView>
-        </SafeAreaView>
+                <ScrollView style={{ backgroundColor: '#19162b' }}>
+                    {sets.map((setReps, index) => (
+                        <Swipeable key={index}
+                            ref={ref => swipeableRefs.current[index] = ref}
+                            renderRightActions={(progress, dragX) => renderRightAction(progress, dragX, index)}
+                            style={[{ flex: 1 }]}
+                        >
+                            <View style={[styles.exerciseScreenSetCard, { flex: 1 }]}>
+                                <Text style={styles.cardText}>
+                                    Set {index + 1}:
+                                    {exercise.type === 'Cardio' ?
+                                        ` ${setReps[1]} Miles in ${setReps[0]} Minutes` :
+                                        ` ${setReps[0]} reps at ${setReps[1]} lbs`
+                                    }
+                                </Text>
+                            </View>
+                        </Swipeable>
+                    ))}
+                </ScrollView>
+            </SafeAreaView>
+        </TouchableWithoutFeedback>
     );
 };
