@@ -1,14 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useLayoutEffect} from 'react';
 import { Platform, SafeAreaView, TextInput, ScrollView, View, Text, FlatList, TouchableOpacity, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView } from 'react-native';
 import { formatTimeSeconds, localeDateStringToISO, isDateStringInLocaleFormat } from './utilities';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import * as SQLite from 'expo-sqlite';
-import { exerciseData } from './ExerciseList.js';
-import { createExerciseTable, insertExerciseData, checkExerciseTableAccurate } from './exerciseDB.js';
+import { checkExerciseTableAccurate } from './exerciseDB.js';
 import { FontAwesome } from 'react-native-vector-icons';
 import { StatusBar } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import 'react-native-url-polyfill/auto';
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from './styles';
 
 const db = SQLite.openDatabase('workouts.db');
@@ -37,14 +36,16 @@ export const HomeScreen = ({ navigation, fetchedData }) => {
         if (text === '') {
             setFilteredExercises([]);
         } else {
+            const formattedText = text.replace(/-/g, ' ').toLowerCase();
             const filtered = exerciseList
-                .filter((item) => item.name.toLowerCase().includes(text.toLowerCase()))
-                .slice(0, 5);;
-
+                .filter((item) => item.name.replace(/-/g, ' ').toLowerCase().includes(formattedText))
+                .slice(0, 5);
+    
             console.log("New filtered exercise list:", filtered);
             setFilteredExercises(filtered);
         }
     };
+    
 
     const modifyWorkout = (newWorkout) => {
         setWorkout(newWorkout);
@@ -226,13 +227,9 @@ export const HomeScreen = ({ navigation, fetchedData }) => {
             setExercisesLoaded(true);
         }
 
-        console.log("exerises lists", exerciseList);
+        // console.log("exerises lists", exerciseList);
 
     }, [exerciseInput]);
-
-    useEffect(() => {
-        console.log("Changed exercise list", exerciseList);
-    }, [exerciseList]);
 
     useEffect(() => {
         if (exerciseInput === '') {
@@ -240,6 +237,22 @@ export const HomeScreen = ({ navigation, fetchedData }) => {
             setExerciseInput('');
         }
     }, [exerciseInput, justAddedExercise, filteredExercises]);
+
+    // useLayoutEffect(() => {
+    //     navigation.setOptions({
+    //         headerRight: () => (
+    //             <TouchableOpacity
+    //                 onPress={() => navigation.navigate('SignIn')}
+    //             >
+    //                 <Icon name="user" size={26} color="#fff" style={{ marginRight: 10 }} />
+    //             </TouchableOpacity>
+    //         ),
+    //         headerStyle: {
+    //             height: 91, // Set your desired height
+    //             backgroundColor: "#19162b",
+    //         },
+    //     });
+    // }, [navigation]);
 
     // useEffect(() => {
     //     let intervalId;

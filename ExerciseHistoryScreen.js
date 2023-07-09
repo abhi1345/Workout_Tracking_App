@@ -25,7 +25,7 @@ export const ExerciseHistoryScreen = ({ route }) => {
 
                         if (exercises != null) {
                             const foundExercise = exercises.find(
-                                (e) => e.name === exerciseName,
+                                (e) => e.name.replace(/-/g, ' ') === exerciseName.replace(/-/g, ' '),
                             );
 
                             if (foundExercise && foundExercise.sets && foundExercise.sets.length > 0) {

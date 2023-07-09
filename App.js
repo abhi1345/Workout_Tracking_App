@@ -1,10 +1,13 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import 'react-native-url-polyfill/auto';
+import { createClient } from "@supabase/supabase-js";
 
+import { SignInScreen } from './SignInScreen';
 import { insertExerciseData, createExerciseTable } from './exerciseDB';
 import { HomeScreen } from './HomeScreen.js';
 import { ExerciseScreen } from './ExerciseScreen.js';
@@ -15,6 +18,15 @@ import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 
 const HomeStack = createStackNavigator();
+
+export const supabase = createClient("https://mvxzzlpznfutepjuqbrx.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im12eHp6bHB6bmZ1dGVwanVxYnJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODg0NTI2MDksImV4cCI6MjAwNDAyODYwOX0.uD4ANRSC2LKE7vkcKarplw5qtEEGToE9hJFdcVb1QWQ", {
+  auth: {
+    storage: AsyncStorage,
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false,
+  },
+});
 
 function HomeStackNavigator({ navigation, fetchedData }) {
   return (
@@ -62,6 +74,10 @@ function HomeStackNavigator({ navigation, fetchedData }) {
           headerTintColor: '#fff', // Set the text color for the header for the Exercise screen
         }}
       />
+      <HomeStack.Screen
+        name="SignIn"
+        component={SignInScreen}
+      />
     </HomeStack.Navigator>
   );
 }
@@ -87,11 +103,20 @@ function App() {
       // Check if an hour has passed since last update
       if (true || !lastUpdated || now - lastUpdated >= 60 * 60 * 1000) {
         // Fetch data from firebase
-        const url = `https://lift-logger-alpha-default-rtdb.firebaseio.com/exercises.json`;
-        const response = await fetch(url);
-        const data = await response.text(); // Extract response as text
-        const jsonData = JSON.parse(data); // Parse JSON string
-        console.log("Pulled exercise data from firebase db");
+        // const url = `https://lift-logger-alpha-default-rtdb.firebaseio.com/exercises.json`;
+        // const response = await fetch(url);
+        // const firebaseData = await response.text(); // Extract response as text
+        // console.log("FirebaseData", typeof firebaseData , firebaseData);
+        // const firebaseJsonData = JSON.parse(firebaseData); // Parse JSON string
+        // console.log("Pulled exercise jSONdata from firebase db", firebaseJsonData, typeof firebaseJsonData);
+
+
+
+        // console.log("starting supabase pull");
+        const { data, error } = await supabase.from("exercises").select("equipment, name, primary_muscle, type");
+        console.log("Pulled exercise data from supabase db");
+        const jsonData = data; // Parse JSON string
+        // console.log("Pulled exercise jSONdata from supabase db", jsonData);
 
         // Create table in local db and insert data
         createExerciseTable()
@@ -102,7 +127,7 @@ function App() {
           .then(() => {
             console.log('Data inserted, updating last updated time');
             setFetchedData(jsonData);
-            console.log("We have fetched data", fetchedData);
+            // console.log("We have fetched data", fetchedData);
             setIsLoading(false);
             return AsyncStorage.setItem('lastUpdated', String(now));
           })

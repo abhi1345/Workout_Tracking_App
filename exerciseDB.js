@@ -16,12 +16,13 @@ export const createExerciseTable = () => {
                 'DROP TABLE IF EXISTS exercises;',
                 [],
                 () => {
+                    console.log("Dropped exercises table");
                     // create a new table
                     tx.executeSql(
                         'CREATE TABLE exercises (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, type TEXT, equipment TEXT, primary_muscle TEXT);',
                         [],
                         () => {
-                            console.log('exercises table created successfully');
+                            console.log('New exercises table created successfully');
                             resolve();
                         },
                         (_, error) => {
