@@ -8,6 +8,7 @@ import { FontAwesome } from 'react-native-vector-icons';
 import { StatusBar } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import 'react-native-url-polyfill/auto';
+import { Animated } from 'react-native';
 import styles from './styles';
 
 const db = SQLite.openDatabase('workouts.db');
@@ -28,9 +29,6 @@ export const HomeScreen = ({ navigation, fetchedData }) => {
 
     const [exerciseList, setExerciseList] = useState([]);
     const [justAddedExercise, setJustAddedExercise] = useState(false);
-
-
-    const HARDCREATEEXERCISES = true;
 
     const filterExercises = async (text) => {
         if (text === '') {
@@ -123,11 +121,6 @@ export const HomeScreen = ({ navigation, fetchedData }) => {
         }
         setJustAddedExercise(false);
     }
-
-    const clearExercises = () => {
-        setWorkout([]);
-        setNumExercises(0);
-    };
 
     const saveWorkout = async () => {
         let duration = 0;
@@ -237,59 +230,6 @@ export const HomeScreen = ({ navigation, fetchedData }) => {
             setExerciseInput('');
         }
     }, [exerciseInput, justAddedExercise, filteredExercises]);
-
-    // useLayoutEffect(() => {
-    //     navigation.setOptions({
-    //         headerRight: () => (
-    //             <TouchableOpacity
-    //                 onPress={() => navigation.navigate('SignIn')}
-    //             >
-    //                 <Icon name="user" size={26} color="#fff" style={{ marginRight: 10 }} />
-    //             </TouchableOpacity>
-    //         ),
-    //         headerStyle: {
-    //             height: 91, // Set your desired height
-    //             backgroundColor: "#19162b",
-    //         },
-    //     });
-    // }, [navigation]);
-
-    // useEffect(() => {
-    //     let intervalId;
-
-    //     const loadExercises = async () => {
-    //         // Read data from Firebase Realtime Database
-    //         const ref = database().ref('/exercises');
-    //         ref.on('value', (snapshot) => {
-    //             let data = [];
-    //             snapshot.forEach((child) => {
-    //                 data.push({
-    //                     name: child.val().name,
-    //                     type: child.val().type,
-    //                     equipment: child.val().equipment,
-    //                     primary_muscle: child.val().primary_muscle
-    //                 });
-    //             });
-    //             console.log("fetched from firebase", data);
-    //             setExerciseList(data);
-    //         }, (error) => {
-    //             console.error('Error retrieving exercise data:', error);
-    //         });
-    //     };
-
-    //     loadExercises();
-    //     console.log("ran load exercises");
-
-    //     if (timerVisible) {
-    //         intervalId = setInterval(() => {
-    //             setElapsedTime(Math.floor((new Date() - workoutStartTime) / 1000));
-    //         }, 1000);
-    //     }
-
-    //     return () => {
-    //         clearInterval(intervalId);
-    //     };
-    // }, [timerVisible, workoutStartTime]);    
 
 
     useEffect(() => {
@@ -414,11 +354,25 @@ export const HomeScreen = ({ navigation, fetchedData }) => {
     );
 };
 
-const Card = ({ exercise, onPress, onDelete }) => {
 
-    const RightSwipeActions = () => {
+const Card = ({ exercise, onPress, onDelete }) => {
+    const swipeableRef = React.useRef(null);
+
+    const RightSwipeActions = (progress, dragX) => {
+        const scale = dragX.interpolate({
+            inputRange: [-100, 0],
+            outputRange: [1, 0],
+            extrapolate: 'clamp',
+        });
         return (
-            <CardDeleteButton onPress={onDelete} />
+            <TouchableOpacity onPress={() => {
+                onDelete();
+                swipeableRef.current.close();
+            }}>
+                <Animated.View style={{transform: [{ scale }]}}>
+                    <CardDeleteButton onPress={onDelete} />
+                </Animated.View>
+            </TouchableOpacity>
         );
     };
 
@@ -428,7 +382,7 @@ const Card = ({ exercise, onPress, onDelete }) => {
 
     return (
         <Swipeable
-            renderLeftActions={null}
+            ref={swipeableRef}
             renderRightActions={RightSwipeActions}
             onSwipeableRightOpen={swipeFromRightOpen}
             disableLeftSwipe={true}
@@ -442,7 +396,6 @@ const Card = ({ exercise, onPress, onDelete }) => {
                 <View style={{ marginTop: 5 }}>
                     {exercise.sets !== null && exercise.sets.map((setReps, index) => (
                         <Text key={index} style={{ color: 'gray' }} >
-                            {/* Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs */}
                             Set {index + 1}:
                             {exercise.type === 'Cardio' ?
                                 ` ${setReps[1]} Miles in ${setReps[0]} Minutes` :
@@ -455,6 +408,7 @@ const Card = ({ exercise, onPress, onDelete }) => {
         </Swipeable>
     );
 };
+
 
 const CardButton = ({ title, onPress }) => {
     return (

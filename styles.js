@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     exerciseScreenDeleteBox: {
         backgroundColor: 'red',
         justifyContent: 'center',
-        // alignItems: 'flex-end',
+        alignItems: 'center',
         width: 80,
         borderRadius: 10,
         padding: 10, // increased padding

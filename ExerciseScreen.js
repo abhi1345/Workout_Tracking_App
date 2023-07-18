@@ -80,17 +80,16 @@ export const ExerciseScreen = ({ route, navigation }) => {
             extrapolate: 'clamp',
         });
         return (
-            <TouchableOpacity onPress={() => deleteSet(index)}>
+            <TouchableOpacity onPress={() => deleteSet(index)} style={{ alignItems: 'center', justifyContent: 'center' }}>
                 <View style={styles.exerciseScreenDeleteBox}>
-                    <Animated.Text
+                    <Animated.View
                         style={[
-                            styles.exerciseScreenDeleteText,
                             {
                                 transform: [{ scale }],
                             },
                         ]}>
-                        Delete
-                    </Animated.Text>
+                        <Icon name="trash-o" size={18} color="#fff" />
+                    </Animated.View>
                 </View>
             </TouchableOpacity>
         );

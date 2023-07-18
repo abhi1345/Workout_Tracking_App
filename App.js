@@ -101,16 +101,8 @@ function App() {
       const now = Date.now();
 
       // Check if an hour has passed since last update
-      if (true || !lastUpdated || now - lastUpdated >= 60 * 60 * 1000) {
-        // Fetch data from firebase
-        // const url = `https://lift-logger-alpha-default-rtdb.firebaseio.com/exercises.json`;
-        // const response = await fetch(url);
-        // const firebaseData = await response.text(); // Extract response as text
-        // console.log("FirebaseData", typeof firebaseData , firebaseData);
-        // const firebaseJsonData = JSON.parse(firebaseData); // Parse JSON string
-        // console.log("Pulled exercise jSONdata from firebase db", firebaseJsonData, typeof firebaseJsonData);
-
-
+      console.log("Last update", lastUpdated);
+      if (!lastUpdated || now - lastUpdated >= 60 * 60 * 1000) {
 
         // console.log("starting supabase pull");
         const { data, error } = await supabase.from("exercises").select("equipment, name, primary_muscle, type");
@@ -138,12 +130,17 @@ function App() {
             setIsLoading(false);
             console.error('Error during database update:', error);
           });
+      } else {
+        setIsLoading(false);
       }
     };
 
     loadExercises();
-  }, []);  // Run once when the app starts
+  }, []);  // Run once when the app starts 
 
+  useEffect(() => {
+    console.log("Is loading is", isLoading);
+  }, [isLoading]);
 
   const [fontsLoaded] = useFonts({
     'SFUIDisplay-Heavy': require('./assets/fonts/SFUIDisplay-Heavy.otf'),
