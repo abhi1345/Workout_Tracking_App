@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useLayoutEffect, useCallback } from 'react';
 import { SafeAreaView, View, Text, FlatList, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import * as SQLite from 'expo-sqlite';
 
 import { formatTimeSeconds, isoDateToLocale, isDateStringInLocaleFormat, localeDateStringToISO } from './utilities';
@@ -9,6 +10,7 @@ import styles from './styles';
 const db = SQLite.openDatabase('workouts.db');
 
 export const WorkoutLogScreen = () => {
+  const navigation = useNavigation();
   const [savedWorkouts, setSavedWorkouts] = useState([]);
 
   const updateDateInDatabase = (workoutId, newDate) => {
@@ -95,6 +97,22 @@ export const WorkoutLogScreen = () => {
       console.error('Error deleting workout:', error);
     }
   };
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+        headerRight: () => (
+            <TouchableOpacity
+                onPress={() => navigation.navigate('SignIn')}
+            >
+                <Icon name="user" size={37} color="#fff" style={{ marginRight: 10 }} />
+            </TouchableOpacity>
+        ),
+        headerStyle: {
+            height: 91, // Set your desired height
+            backgroundColor: "#19162b",
+        },
+    });
+}, [navigation]);
 
   return (
     <KeyboardAvoidingView

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useLayoutEffect } from 'react';
+import React, { useState, useRef, useLayoutEffect, useEffect } from 'react';
 import {
     Button, SafeAreaView, TextInput, View, Text, FlatList, ScrollView, TouchableOpacity, Animated, TouchableWithoutFeedback, Keyboard
 } from 'react-native';
@@ -15,6 +15,7 @@ export const ExerciseScreen = ({ route, navigation }) => {
     const [sets, setSets] = useState(() => exercise.sets || []);
     const [reps, setReps] = useState(() => exercise.reps || '');
     const [weight, setWeight] = useState(() => exercise.weight || '');
+    const [notes, setNotes] = useState(() => exercise.notes || ''); // Initialize notes from exercise object
     const swipeableRefs = useRef([]);
 
 
@@ -43,6 +44,34 @@ export const ExerciseScreen = ({ route, navigation }) => {
             alert('Please enter numbers only.');
         }
     };
+
+    function weightToPlates(numPounds) {
+        if (numPounds % 2.5 !== 0 || numPounds < 45 || numPounds > 1000) {
+          return "Can't calculate plates for this weight.";
+        }
+      
+        let weightMinusBar = numPounds - 45;
+        const plateSizes = [45, 25, 10, 5, 2.5];
+        const plates = {};
+      
+        while (weightMinusBar > 0) {
+          for (const num of plateSizes) {
+            if (weightMinusBar >= num * 2) {
+              weightMinusBar -= num * 2;
+              plates[num] = plates[num] ? plates[num] + 1 : 1;
+              break;
+            }
+          }
+        }
+      
+        let plateBreakdown = "Plate breakdown: ";
+        for (const [weight, count] of Object.entries(plates)) {
+          plateBreakdown += `${count} ${weight} lb ${count === 1 ? "plate" : "plates"}, `;
+        }
+        plateBreakdown = plateBreakdown.slice(0, -2); // Remove the trailing comma and space
+      
+        return plateBreakdown;
+      };
 
     const deleteSet = (index) => {
         setSets(prevSets => {
@@ -94,6 +123,14 @@ export const ExerciseScreen = ({ route, navigation }) => {
             </TouchableOpacity>
         );
     };
+
+    useEffect(() => {
+        console.log("Notes changed");
+        console.log(notes);
+        route.params.exercise.notes = notes;
+        console.log(route.params);
+    }, [notes]);
+
 
 
     useLayoutEffect(() => {
@@ -204,6 +241,33 @@ export const ExerciseScreen = ({ route, navigation }) => {
                         </Swipeable>
                     ))}
                 </ScrollView>
+
+
+                <TextInput
+                    placeholder="Add Notes"
+                    placeholderTextColor="gray"
+                    placeholderStyle={{ textAlignVertical: 'center', paddingLeft: 10, padding: 10, alignContent: 'center' }}
+                    onChangeText={setNotes} // update the notes state whenever the text changes
+                    value={notes}
+                    style={{
+                        borderColor: '#ccc',
+                        borderWidth: 1,
+                        borderRadius: 10,
+                        paddingLeft: 10,
+                        marginVertical: 15,
+                        marginHorizontal: 10,
+                        height: 35,
+                        fontSize: 18,
+                        fontFamily: "SFUIDisplay-Light",
+                        color: 'gray',
+                        alignContent: 'center',
+                        justifyContent: 'center',
+                        textAlignVertical: 'center', 
+                    }}
+                    multiline
+                />
+
+
             </SafeAreaView>
         </TouchableWithoutFeedback>
     );

@@ -49,6 +49,10 @@ export const HomeScreen = ({ navigation, fetchedData }) => {
         setWorkout(newWorkout);
     };
 
+    // const modifyExercise = (newExercise) => {
+    //     setWorkout(newExercise);
+    // };
+
     const handleInputChange = (text) => {
         setExerciseInput(text);
         if (justAddedExercise) {
@@ -75,6 +79,7 @@ export const HomeScreen = ({ navigation, fetchedData }) => {
             reps: null,
             weight: null,
             type: null,
+            notes: null,
         };
 
         if (exerciseInput.trim() === '') {
@@ -101,6 +106,7 @@ export const HomeScreen = ({ navigation, fetchedData }) => {
             name: exercise.name,
             type: exercise.type,
             sets: null,
+            notes: null,
         };
 
         if (exercise.name.trim() === '') {
@@ -165,6 +171,7 @@ export const HomeScreen = ({ navigation, fetchedData }) => {
             setWorkout([]);
 
             alert('Workout saved successfully.');
+            console.log("Saved workout", workoutData);
 
         } catch (error) {
             console.error('Error saving workout:', error);

@@ -33,6 +33,7 @@ export const ExerciseHistoryScreen = ({ route }) => {
                                     workoutId: workout.id,
                                     date: workout.date,
                                     sets: foundExercise.sets,
+                                    notes: foundExercise.notes,
                                 });
                             }
                         }
@@ -55,9 +56,15 @@ export const ExerciseHistoryScreen = ({ route }) => {
                     <View style={styles.historyItem}>
                         <Text style={styles.historyDate}>{isoDateToLocale(item.date)}:</Text>
                         {item.sets && item.sets.map((setReps, index) => (
-                            <Text key={index} style={styles.historySet}>
-                                Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs
-                            </Text>
+                            <View key={index}>
+                                <Text style={styles.historySet}>
+                                    Set {index + 1}: {setReps[0]} reps at {setReps[1]} lbs
+                                </Text>
+                                {item.notes && item.notes.length > 0 && <Text style={styles.historySet}>
+                                    <Text style={{fontFamily: "SFUIDisplay-Bold"}}>Notes: </Text>
+                                    <Text style={styles.historyNotes}>{item.notes}</Text>
+                                </Text>}
+                            </View>
                         ))}
                     </View>
                 )}
